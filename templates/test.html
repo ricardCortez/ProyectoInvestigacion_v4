@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Mi Sitio Web</title>
+  <link rel="stylesheet" href="/static/css/styles.css">
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.5/dist/sweetalert2.min.css" rel="stylesheet">
+</head>
+<body>
+  <header>
+    <img src="logo.png" alt="Logo">
+    <h1>Navegacion</h1>
+  </header>
+  <nav>
+    <ul>
+        <li><a href="#" id="enlace-busqueda">Búsqueda</a></li>
+        <li><a href="#" id="enlace-formulario-agregar">Formulario Agregar</a></li>
+        <li><a href="#" id="enlace-formulario-subir-archivo">Formulario Subir Archivo</a></li>
+      </ul>      
+  </nav>
+  <main>
+    <div id="contenido-adicional">
+      <p>Este es el contenido adicional que rodea al campo dinámico.</p>
+      <div id="campo-dinamico">
+
+      </div>
+      <p>Más contenido adicional aquí.</p>
+            <form id="formulario-subir-archivo">
+          <input type="file" name="archivo" id="archivo" accept=".csv">
+          <br>
+          <input type="button" value="Subir Archivo" id="btnSubirArchivo">
+      </form>
+    </div>
+  </main>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.5/dist/sweetalert2.all.min.js"></script>
+  <script src="/static/js/test.js"></script>
+</body>
+</html>

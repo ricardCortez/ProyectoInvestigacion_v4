@@ -1,0 +1,98 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  /*background-image: url("https://img2.wallspic.com/crops/6/5/7/1/1/111756/111756-modo_monocromo-fila-ilustracion-angulo-triangulo-3840x2160.jpg");
+  background-repeat: no-repeat;
+  background-size: cover;*/
+}
+
+.container {
+position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  align-content: center;
+  flex-wrap: wrap;
+  margin-top: 250px; /* Ajusta el margen superior aquí */
+  max-height: calc(100vh - 100px); /* Ajusta la altura máxima del contenedor aquí */
+  overflow: auto; /* Añade desplazamiento cuando el contenido sea mayor que la altura máxima */
+}
+
+.espacio {
+  flex-grow: 1;
+}
+
+.contenedor {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  margin: 30px;
+  text-align: center;
+}
+
+.contenedor img {
+  width: 150px; /* Ajusta el ancho de la imagen aquí */
+  height: 150px; /* Ajusta la altura de la imagen aquí */
+  margin-bottom: 80px; /* Ajusta el valor según el espacio que desees dejar para el botón */
+}
+
+.contenedor img {
+  max-width: 200px;
+  max-height: 200px;
+}
+
+.boton {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #f2f2f2;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  padding: 20px 20px;
+  width: 150px; /* Ajusta el ancho del botón aquí */
+  height: 60px; /* Ajusta la altura del botón aquí */
+  text-align: center; /* Centra el texto dentro del botón */
+  justify-content:center; /*CENTRA el texto dentro del botón */
+  display: flex; /* Permite centrar el texto verticalmente */
+  align-items: center; /* Centra el texto verticalmente */
+  white-space: normal; /* Permite que el texto se divida en múltiples líneas */
+}
+
+.boton:hover {
+  background-color: #e6e6e6;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+}
+
+.imagen-superior {
+  display: flex;
+  /*flex-direction: row;*/
+  justify-content: center;
+  align-items: center;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  background-color: #f2f2f2;
+  padding: 10px;
+  text-align: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.imagen-superior img {
+  max-width: 200px;
+  max-height: 100px;
+}
+
+@media screen and (max-width: 768px) {
+  .container {
+    flex-direction: column;
+  }
+}

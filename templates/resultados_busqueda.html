@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Resultados de búsqueda</title>
+</head>
+<body>
+  <h1>Resultados de búsqueda</h1>
+  <div id="resultado-busqueda">
+    {% if usuario %}
+      <ul>
+        <li>
+          <strong>ID:</strong> {{ usuario.id }}<br>
+          <strong>Codigo:</strong> {{ usuario.codigo_alumno }}<br>
+          <strong>Nombre:</strong> {{ usuario.nombre }}<br>
+          <strong>Fecha de ingreso:</strong> {{ usuario.fecha_ingreso }}<br>
+          <strong>Ciclo Academico Actual:</strong> {{ usuario.ciclo_academico }}<br>
+          <strong>Fecha de ultima actualizacion de foto:</strong> {{ usuario.ultima_actualizacion_foto }}<br>
+        </li>
+      </ul>
+    {% else %}
+      <p>No se encontraron resultados.</p>
+    {% endif %}
+  </div>
+</body>
+</html>

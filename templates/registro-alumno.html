@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Registro</title>
+    <link rel="stylesheet" href="estilos.css">
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.5/dist/sweetalert2.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class='mt-3 text-center'>
+        <!--<img src=".jpg" alt="Logo" width="50" height="50">-->
+        <h1>Sistema de reconocimiento facial</h1>
+    </div>
+
+    <div class="row text-center">
+        <div class="col">
+            <h2>Agregar alumnos</h2>
+            <form action='/add' method="POST" enctype="multipart/form-data">
+                <label><b>Ingrese alumno</b></label>
+                <br>
+                <input type="alphanumeric" id="nombre" name='nombre' required >
+                <br>
+                <label><b>Ingrese código</b></label>
+                <br>
+                <input type="alphanumeric" id="codigo_alumno" name='codigo_alumno' required >
+                <br>
+                <button type='submit' class='btn btn-primary'>Agregar</button>
+                <br>
+            </form>
+        </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.5/dist/sweetalert2.all.min.js"></script>
+</body>
+</html>

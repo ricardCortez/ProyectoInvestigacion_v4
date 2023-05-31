@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <title>Bienvenido</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link href="https://fonts.googleapis.com/css?family=Lato:300,400,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/nuevo_registro/css/style.css">
+  </head>
+  <body>
+    <section class="">
+      <h2 class="titulo">Registro</h2>
+      <div class="container">
+        <div class="campo_input">
+          <label for="tipo-perfil" class="label">Tipo de perfil</label>
+          <select id="tipo-perfil" class="input_box" data-validation="length alphanumeric" data-validation-length="3-12">
+            <option value="Administrador">Administrador</option>
+            <option value="Personal administrativo">Personal administrativo</option>
+            <option value="Docente">Docente</option>
+          </select>
+        </div>
+        <div class="campo_input">
+          <label for="tipo-documento" class="label">Tipo de documento</label>
+          <select id="tipo-documento" class="label" data-validation="length alphanumeric" data-validation-length="3-12">
+            <option value="dni">DNI</option>
+            <option value="otros">Otros</option>
+          </select>
+        </div>
+        <div class="campo_input">
+          <label for="numero-documento" class="label">Número de documento</label>
+          <input type="text" id="numero-documento" class="label" pattern="[0-9]+" data-validation="length alphanumeric" data-validation-length="9">
+        </div>
+        <div class="campo_input">
+          <label for="nombre" class="label">Nombre</label>
+          <input type="text" id="nombre" class="label" data-validation="length alphanumeric" data-validation-length="3-12">
+        </div>
+        <div class="campo_input">
+          <label for="apellido-paterno" class="label">Apellido paterno</label>
+          <input type="text" id="apellido-paterno" class="label" data-validation="length alphanumeric" data-validation-length="3-12">
+        </div>
+        <div class="campo_input">
+          <label for="apellido-materno" class="label">Apellido materno</label>
+          <input type="text" id="apellido-materno" class="label" data-validation="length alphanumeric" data-validation-length="3-12">
+        </div>
+        <div class="campo_input">
+          <label for="correo-electronico" class="label">Correo electrónico</label>
+          <input type="text" id="correo-electronico" class="label" data-validation="length alphanumeric" data-validation-length="3-12">
+        </div>
+        <div class="campo_input">
+          <label for="celular" class="label">Celular</label>
+          <input type="text" id="celular" class="label" data-validation="length alphanumeric" data-validation-length="3-12">
+        </div>
+        <div class="campo_input">
+          <label for="sexo" class="label">Sexo</label>
+          <select id="sexo" class="label" data-validation="length alphanumeric" data-validation-length="3-12">
+            <option value="masculino">Masculino</option>
+            <option value="femenino">Femenino</option>
+            <option value="otro">Otro</option>
+          </select>
+        </div>
+        <div class="campo_input">
+          <label for="fecha-nacimiento" class="label">Fecha de nacimiento</label>
+          <input type="date" id="fecha-nacimiento" class="label" data-validation="length alphanumeric" data-validation-length="3-12">
+        </div>
+        <div class="campo_input">
+          <label for="clave-asignada" class="label">Clave asignada</label>
+          <input type="text" id="clave-asignada" class="label" data-validation="length alphanumeric" data-validation-length="3-12">
+        </div>
+        <div class="button-section">
+          <button id="registrar-btn" class="btn">Registrar</button>
+        </div>
+      </div>
+    </section>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+    <script src="/static/nuevo_registro/js/cargar.js"></script>
+  </body>
+</html>

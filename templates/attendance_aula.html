@@ -1,0 +1,32 @@
+<div class="row text-center">
+  <div class="col">
+    <h2>Asistencia para aula</h2>
+    <form action="/search_student_aula" method="POST">
+      <div class="form-group">
+        <input type="text" class="form-control" name="codigo_alumno" placeholder="Ingrese el código del alumno">
+      </div>
+      <button type="submit" class="btn btn-primary">Buscar alumno</button>
+    </form>
+    <a href="/start/aula">
+      <button type="submit" class="btn btn-primary">Toma de asistencia</button>
+    </a>
+  </div>
+</div>
+
+{% if usuario %}
+<div id="resultado-busqueda">
+  <ul>
+    <li>
+      <strong>ID:</strong> {{ usuario.id }}<br>
+      <strong>Código:</strong> {{ usuario.codigo_alumno }}<br>
+      <strong>Nombre:</strong> {{ usuario.nombre }}<br>
+      <strong>Fecha de ingreso:</strong> {{ usuario.fecha_ingreso }}<br>
+      <strong>Ciclo Académico Actual:</strong> {{ usuario.ciclo_academico }}<br>
+      <strong>Fecha de última actualización de foto:</strong> {{ usuario.ultima_actualizacion_foto }}<br>
+    </li>
+  </ul>
+</div>
+{% elif no_results %}
+<p>No se encontraron resultados.</p>
+{% endif %}
+
