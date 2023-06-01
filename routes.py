@@ -1,5 +1,6 @@
 import logging
 from datetime import datetime, date
+import datetime
 import os
 import imutils
 import cv2
@@ -189,12 +190,12 @@ def start_laboratorio():
                     if codigo_alumno:
                         # Verificar si el alumno ya tiene un registro de asistencia para la fecha actual en asistencia laboratorio
                         today = date.today()
-                        existing_attendance_lab = AsistenciaLaboratorio.query.filter_by(nombre=nombre, codigo_alumno=codigo_alumno, fecha=today).first()
+                        existing_attendance_lab = AsistenciaLaboratorio.query.filter_by(codigo_alumno=codigo_alumno, fecha=today).first()
                         if existing_attendance_lab:
                             logging.info(f"El alumno {identified_person} ya tiene un registro de asistencia para hoy en asistencia laboratorio.")
                         else:
                             # Agregar el registro de asistencia en asistencia laboratorio solo si no existe uno para la fecha actual
-                            add_attendance_laboratorio(numero_cubiculo, nombre, codigo_alumno)
+                            add_attendance_laboratorio(numero_cubiculo, codigo_alumno)
                     else:
                         logging.error(f"No se encontró el código de alumno para el nombre: {identified_person}")
                 else:
@@ -268,7 +269,8 @@ def add():
         cv2.destroyAllWindows()
 
         # Guardar los datos del registro de rostros en la base de datos
-        registro_rostro = RegistroRostros(nombre=nombre, codigo_alumno=codigo_alumno, ruta_rostro=ruta_rostro)
+        fecha_registro = datetime.datetime.now()  # Obtener la fecha y hora actual
+        registro_rostro = RegistroRostros(nombre=nombre, codigo_alumno=codigo_alumno, ruta_rostro=ruta_rostro, fecha_registro=fecha_registro)
         db.session.add(registro_rostro)
         db.session.commit()
 
@@ -402,12 +404,16 @@ def search_student():
 
     # Realizar la búsqueda del usuario en la base de datos
     usuario = Usuario.query.filter_by(codigo_alumno=codigo_alumno).first()
+    asistencia_aula = AsistenciaAula.query.filter_by(codigo_alumno=codigo_alumno).all()
+    registro_rostro = RegistroRostros.query.filter_by(codigo_alumno=codigo_alumno)
 
     if usuario is not None:
         print(usuario.__dict__)  # Imprime los detalles del usuario encontrado
+        print(asistencia_aula)  # Imprime los registros de asistencia del aula del usuario
     if usuario is not None:
         # Renderizar los resultados de búsqueda en un template HTML
-        return render_template('attendance_aula.html', usuario=usuario)
+        return render_template('attendance_aula.html', usuario=usuario,
+                               asistencia_aula=asistencia_aula, registro_rostro=registro_rostro)
 
     return render_template('attendance_aula.html', no_results=True)
 
@@ -418,12 +424,19 @@ def search_student_laboratorio():
 
     # Realizar la búsqueda del usuario en la base de datos
     usuario = Usuario.query.filter_by(codigo_alumno=codigo_alumno).first()
+    asistencia_laboratorio = AsistenciaLaboratorio.query.filter_by(codigo_alumno=codigo_alumno).all()
+    registro_rostro = RegistroRostros.query.filter_by(codigo_alumno=codigo_alumno)
 
     if usuario is not None:
-        print(usuario.__dict__)  # Imprime los detalles del usuario encontrado
+            print(usuario.__dict__)  # Imprime los detalles del usuario encontrado
+            print(asistencia_laboratorio)  # Imprime los registros de asistencia del laboratorio del usuario
+
     if usuario is not None:
         # Renderizar los resultados de búsqueda en un template HTML
-        return render_template('attendance_laboratorio.html', usuario=usuario)
+        return render_template('attendance_laboratorio.html', usuario=usuario,
+                               asistencia_laboratorio=asistencia_laboratorio, registro_rostro=registro_rostro)
 
     return render_template('attendance_laboratorio.html', no_results=True)
+
+
 

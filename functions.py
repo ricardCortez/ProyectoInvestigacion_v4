@@ -79,10 +79,10 @@ def extract_attendance_from_db():
         logging.error(f"Error al extraer los registros de asistencia desde la base de datos: {str(e)}")
         return [], [], [], [], [], []
 
-def add_attendance_aula(nombre, codigo_alumno):
+def add_attendance_aula(codigo_alumno):
     try:
         # Crea un nuevo registro de asistencia en aula hacia la base de datos
-        asistencia = AsistenciaAula(nombre=nombre, codigo_alumno=codigo_alumno, fecha=date.today(), hora=datetime.now().time())
+        asistencia = AsistenciaAula(codigo_alumno=codigo_alumno, fecha=date.today(), hora=datetime.now().time())
         db.session.add(asistencia)
         db.session.commit()
         logging.info("Asistencia en aula registrada exitosamente.")
@@ -90,10 +90,10 @@ def add_attendance_aula(nombre, codigo_alumno):
         db.session.rollback()
         logging.error(f"Error al registrar la asistencia en aula hacia la base de datos: {str(e)}")
 
-def add_attendance_laboratorio(numero_cubiculo, nombre, codigo_alumno):
+def add_attendance_laboratorio(numero_cubiculo, codigo_alumno):
     try:
         # Crea un nuevo registro de asistencia en laboratorio hacia la base de datos
-        asistencia = AsistenciaLaboratorio(numero_cubiculo=numero_cubiculo, nombre=nombre, codigo_alumno=codigo_alumno, fecha=date.today(), hora=datetime.now().time())
+        asistencia = AsistenciaLaboratorio(numero_cubiculo=numero_cubiculo, codigo_alumno=codigo_alumno, fecha=date.today(), hora=datetime.now().time())
         db.session.add(asistencia)
         db.session.commit()
         logging.info("Asistencia en laboratorio registrada exitosamente.")

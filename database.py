@@ -22,12 +22,11 @@ class Usuario(db.Model):
 class AsistenciaAula(db.Model):
     __tablename__ = 'asistencia_aula'
     id = db.Column(db.Integer, primary_key=True)
-    nombre = db.Column(db.String(100))
     codigo_alumno = db.Column(db.String(50))
     fecha = db.Column(db.Date)
     hora = db.Column(db.Time)
-    def __init__(self, nombre, codigo_alumno, fecha, hora):
-        self.nombre = nombre
+    def __init__(self, codigo_alumno, fecha, hora):
+        #self.nombre = nombre
         self.codigo_alumno = codigo_alumno
         self.fecha = fecha
         self.hora = hora
@@ -35,13 +34,11 @@ class AsistenciaLaboratorio(db.Model):
     __tablename__ = 'asistencia_laboratorio'
     id = db.Column(db.Integer, primary_key=True)
     numero_cubiculo = db.Column(db.String(100))
-    nombre = db.Column(db.String(100))
     codigo_alumno = db.Column(db.String(50))
     fecha = db.Column(db.Date)
     hora = db.Column(db.Time)
-    def __init__(self,numero_cubiculo, nombre, codigo_alumno, fecha, hora):
+    def __init__(self,numero_cubiculo, codigo_alumno, fecha, hora):
         self.numero_cubiculo = numero_cubiculo
-        self.nombre = nombre
         self.codigo_alumno = codigo_alumno
         self.fecha = fecha
         self.hora = hora
@@ -53,11 +50,13 @@ class RegistroRostros(db.Model):
     nombre = db.Column(db.String(100), nullable=False)
     codigo_alumno = db.Column(db.String(50), nullable=False)
     ruta_rostro = db.Column(db.String(200), nullable=False)
+    fecha_registro = db.Column(db.Date)
 
-    def __init__(self, nombre, codigo_alumno, ruta_rostro):
+    def __init__(self, nombre, codigo_alumno, ruta_rostro, fecha_registro):
         self.nombre = nombre
         self.codigo_alumno = codigo_alumno
         self.ruta_rostro = ruta_rostro
+        self.fecha_registro = fecha_registro
 
 class NuevoRegistro(db.Model):
     __tablename__ = 'nuevo_registro'
