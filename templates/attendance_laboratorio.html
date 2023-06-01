@@ -1,21 +1,22 @@
 <div class="row text-center">
   <div class="col">
     <h2>Asistencia para laboratorio</h2>
-    <form action="/search_student_laboratorio" method="POST">
-      <div class="form-group">
-        <input type="text" class="form-control" name="codigo_alumno" placeholder="Ingrese el código del alumno">
-      </div>
-      <button type="submit" class="btn btn-primary">Buscar alumno</button>
-    </form>
 
     <form action="/start/laboratorio" method="POST">
       <label for="numero_cubiculo">Número de Cubículo:</label>
       <input type="text" name="numero_cubiculo" id="numero_cubiculo" required>
-      <button type="submit" class="btn btn-primary">Toma de asistencia</button>
+      <button type="submit" class="btn btn-primary">Validar Rostro</button>
     </form>
-
+    <form action="/search_student_laboratorio" method="POST">
+      <div class="form-group">
+        <p class="form-control-static">{{ codigo_alumno_detectado }}</p>
+        <input type="text" class="form-control" name="codigo_alumno" placeholder="Autocompleta" value="{{ codigo_alumno_detectado }}" readonly autocomplete="on" style="display: none;">
+      </div>
+      <button type="submit" class="btn btn-primary">Buscar alumno</button>
+    </form>
   </div>
 </div>
+<script src="/static/js/resultado_busqueda.js"></script>
 
 {% if usuario %}
   <h1>Detalles del Usuario</h1>
@@ -31,12 +32,15 @@
     <p>Hora: {{ asistencia.hora }}</p>
     <hr>
   {% endfor %}
-<h1>Datos del Sistema</h1>
-    {% for registro in registro_rostro %}
-      <p>Fecha de registro de rostro: {{ registro.fecha_registro }}</p>
-    {% endfor %}
-  {% else %}
-    <p>No se encontraron resultados.</p>
+
+  <h1>Registro de Rostro</h1>
+  {% for registro in registro_rostro %}
+    <p>Fecha de registro: {{ registro.fecha_registro }}</p>
+    <!-- Otros campos del registro de rostro -->
+    <hr>
+  {% endfor %}
+{% else %}
+  <p>No se encontraron resultados.</p>
 {% endif %}
 
 

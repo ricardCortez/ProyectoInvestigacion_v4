@@ -100,12 +100,12 @@ def start_aula():
                 if codigo_alumno:
                     # Verificar si el alumno ya tiene un registro de asistencia para la fecha actual en asistencia aula
                     today = date.today()
-                    existing_attendance_aula = AsistenciaAula.query.filter_by(nombre=nombre, codigo_alumno=codigo_alumno, fecha=today).first()
+                    existing_attendance_aula = AsistenciaAula.query.filter_by(codigo_alumno=codigo_alumno, fecha=today).first()
                     if existing_attendance_aula:
                         logging.info(f"El alumno {identified_person} ya tiene un registro de asistencia para hoy en asistencia aula.")
                     else:
                         # Agregar el registro de asistencia en asistencia aula solo si no existe uno para la fecha actual
-                        add_attendance_aula(nombre, codigo_alumno)
+                        add_attendance_aula(codigo_alumno)
                 else:
                     logging.error(f"No se encontró el código de alumno para el nombre: {identified_person}")
             else:
@@ -129,15 +129,20 @@ def start_aula():
     if frame is not None:
         cv2.putText(frame, 'Captura de video finalizada', (30, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
 
-    nombre, codigo_alumno, hora, *_ = extract_attendance_from_db()
+    codigo_alumno, hora, *_ = extract_attendance_from_db()
     logging.info("Datos de asistencia obtenidos de la base de datos (asistencia aula):")
-    for n, c, h in zip(nombre, codigo_alumno, hora):
-        logging.info(f"Nombre: {n}, Código: {c}, Hora: {h}")
+    for c, h in zip(codigo_alumno, hora):
+        logging.info(f"Código: {c}, Hora: {h}")
 
-    return render_template('attendance_aula.html', nombre=nombre, codigo_alumno=codigo_alumno, hora=hora, datetoday2=datetoday2)
+    return render_template('attendance_aula.html', codigo_alumno=codigo_alumno, hora=hora, datetoday2=datetoday2)
 
 @routes_blueprint.route('/start/laboratorio', methods=['GET', 'POST'])
 def start_laboratorio():
+    usuario = None
+    asistencia_laboratorio = None
+    registro_rostro = None
+    codigo_alumno_detectado = None
+
     if request.method == 'POST':
         numero_cubiculo = request.form['numero_cubiculo']
         # Utiliza el número del cubículo como necesites en tu lógica
@@ -179,13 +184,14 @@ def start_laboratorio():
                 if result[1] < 90:
                     identified_person = imagePaths[result[0]]  # Nombre del usuario identificado
                     recognized_users.add(identified_person)
-                    confidence = round((1 - (result[1] / 100)) * 100 * 2, 2)  # Calcular la confianza como porcentaje
+                    confidence = round((1 - (result[1] / 100)) * 100 * 1.5, 2)  # Calcular la confianza como porcentaje
                     label_text = '{}'.format(identified_person, confidence)
                     cv2.putText(frame, label_text, (x, y - 25), 2, 1.1, (0, 255, 0), 1, cv2.LINE_AA)
                     cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
 
                     # Agregar asistencia del alumno a la tabla "asistencia"
                     codigo_alumno = get_code_from_db(identified_person)
+                    codigo_alumno_detectado = codigo_alumno
                     nombre = get_name_from_db(identified_person)
                     if codigo_alumno:
                         # Verificar si el alumno ya tiene un registro de asistencia para la fecha actual en asistencia laboratorio
@@ -196,6 +202,10 @@ def start_laboratorio():
                         else:
                             # Agregar el registro de asistencia en asistencia laboratorio solo si no existe uno para la fecha actual
                             add_attendance_laboratorio(numero_cubiculo, codigo_alumno)
+                            # Obtener datos adicionales del alumno desde otras tablas
+                            usuario = Usuario.query.filter_by(codigo_alumno=codigo_alumno).first()
+                            asistencia_laboratorio = AsistenciaLaboratorio.query.filter_by(codigo_alumno=codigo_alumno).all()
+                            registro_rostro = RegistroRostros.query.filter_by(codigo_alumno=codigo_alumno).all()
                     else:
                         logging.error(f"No se encontró el código de alumno para el nombre: {identified_person}")
                 else:
@@ -219,12 +229,19 @@ def start_laboratorio():
         if frame is not None:
             cv2.putText(frame, 'Captura de video finalizada', (30, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
 
-        numero_cubiculo, nombre, codigo_alumno, hora, *_ = extract_attendance_from_db()
-        logging.info("Datos de asistencia obtenidos de la base de datos (asistencia laboratorio):")
-        for m, n, c, h in zip(numero_cubiculo, nombre, codigo_alumno, hora):
-            logging.info(f"Cubiculo: {m}, Nombre: {n}, Código: {c}, Hora: {h}")
+        numero_cubiculo, codigo_alumno, hora, *_ = extract_attendance_from_db()
 
-        return render_template('attendance_laboratorio.html',numero_cubiculo=numero_cubiculo, nombre=nombre, codigo_alumno=codigo_alumno, hora=hora, datetoday2=datetoday2)
+        logging.info("Datos de asistencia obtenidos de la base de datos (asistencia laboratorio):")
+        for m, c, h in zip(numero_cubiculo, codigo_alumno, hora):
+            logging.info(f"Codigo: {m}, Hora: {c}, Numero de cubiculo: {h}")
+
+        if usuario is not None and hasattr(usuario, 'codigo_alumno'):
+            return render_template('attendance_laboratorio.html', numero_cubiculo=numero_cubiculo,codigo_alumno=codigo_alumno, hora=hora, usuario=usuario,
+                                   asistencia_laboratorio=asistencia_laboratorio, registro_rostro=registro_rostro,codigo_alumno_detectado= codigo_alumno_detectado)
+        else:
+            return render_template('attendance_laboratorio.html', numero_cubiculo=numero_cubiculo, codigo_alumno=codigo_alumno, hora=hora, usuario=usuario,
+                                   asistencia_laboratorio=asistencia_laboratorio, registro_rostro=registro_rostro,codigo_alumno_detectado =codigo_alumno_detectado, no_results=True)
+
 
 @routes_blueprint.route('/add', methods=['GET', 'POST'])
 def add():
@@ -424,7 +441,7 @@ def search_student_laboratorio():
 
     # Realizar la búsqueda del usuario en la base de datos
     usuario = Usuario.query.filter_by(codigo_alumno=codigo_alumno).first()
-    asistencia_laboratorio = AsistenciaLaboratorio.query.filter_by(codigo_alumno=codigo_alumno).all()
+    asistencia_laboratorio = AsistenciaLaboratorio.query.filter_by(codigo_alumno=codigo_alumno)
     registro_rostro = RegistroRostros.query.filter_by(codigo_alumno=codigo_alumno)
 
     if usuario is not None:

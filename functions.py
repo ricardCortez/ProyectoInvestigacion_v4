@@ -64,20 +64,15 @@ def train_model():
 # Extraer información del archivo de asistencia de hoy en la carpeta de asistencia
 def extract_attendance_from_db():
     try:
-        attendance_records_aula = AsistenciaAula.query.all()
         attendance_records_laboratorio = AsistenciaLaboratorio.query.all()
-        # Extraer los nombres, códigos y horas de los registros de asistencia en aula
-        nombre_aula = [record.nombre for record in attendance_records_aula]
-        codigo_alumno_aula = [record.codigo_alumno for record in attendance_records_aula]
-        hora_aula = [record.hora for record in attendance_records_aula]
-        # Extraer los nombres, códigos y horas de los registros de asistencia en laboratorio
-        nombre_laboratorio = [record.nombre for record in attendance_records_laboratorio]
-        codigo_alumno_laboratorio = [record.codigo_alumno for record in attendance_records_laboratorio]
-        hora_laboratorio = [record.hora for record in attendance_records_laboratorio]
-        return nombre_aula, codigo_alumno_aula, hora_aula, nombre_laboratorio, codigo_alumno_laboratorio, hora_laboratorio
+        codigo_alumno = [record.codigo_alumno for record in attendance_records_laboratorio]
+        hora = [record.hora for record in attendance_records_laboratorio]
+        numero_cubiculo = [record.numero_cubiculo for record in attendance_records_laboratorio]
+        return codigo_alumno, hora, numero_cubiculo
     except Exception as e:
         logging.error(f"Error al extraer los registros de asistencia desde la base de datos: {str(e)}")
-        return [], [], [], [], [], []
+        return [], [], []
+
 
 def add_attendance_aula(codigo_alumno):
     try:
