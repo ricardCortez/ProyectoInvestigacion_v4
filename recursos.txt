@@ -1,0 +1,3 @@
+te explico un poco mejor porque no estoy entendiendo.
+tengo el template attendance_laboratorio.html, la funcion en routes.py llamada start_laboratorio. lo que quiero es que en el campo del template numero_numero cubiculo, funcione de esta manera:
+ingreso el numero correspondiente al cubiculo, luego presiono el boton toma de asistencia que hace referencia a /start/laboratorio, luego se habre la ventana para detectar el rostro y al finalizar se estarian enviando nombre, codigo_alumno,
