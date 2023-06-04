@@ -41,17 +41,25 @@ $('form[name="formularioInicioSesion"]').on('submit', function(e) {
         timer: 2000, // Tiempo en milisegundos que se mostrará el mensaje antes de redirigir.
         showConfirmButton: false,
         onClose: () => {
-          window.location.href = "/inicio";
+          window.location.href = "/adm";
         }
       });
     },
     error: function(jqXHR, textStatus, errorThrown) {
       // Si hay un error (es decir, el inicio de sesión no es exitoso), mostrar un error
-      Swal.fire({
-        icon: 'error',
-        title: 'Oops...',
-        text: 'Usuario o contraseña incorrecta.',
-      });
+      if (jqXHR.responseJSON.message === 'Inicio de sesión fallido. Por favor verifique su DNI y contraseña.') {
+        Swal.fire({
+          icon: 'error',
+          title: 'Oops...',
+          text: 'Usuario o contraseña incorrecta.',
+        });
+      } else {
+        Swal.fire({
+          icon: 'error',
+          title: 'Oops...',
+          text: 'Por favor, complete todos los campos.',
+        });
+      }
     }
   });
 });

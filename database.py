@@ -1,4 +1,3 @@
-# database.py
 from flask_sqlalchemy import SQLAlchemy
 
 db = SQLAlchemy()
@@ -30,6 +29,7 @@ class AsistenciaAula(db.Model):
         self.codigo_alumno = codigo_alumno
         self.fecha = fecha
         self.hora = hora
+
 class AsistenciaLaboratorio(db.Model):
     __tablename__ = 'asistencia_laboratorio'
     id = db.Column(db.Integer, primary_key=True)

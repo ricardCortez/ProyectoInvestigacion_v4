@@ -21,15 +21,20 @@
   <p>Fecha de ingreso: {{ usuario.fecha_ingreso }}</p>
 
   <h1>Asistencia de Aula</h1>
-  {% for asistencia in asistencia_aula %}
-    <p>Fecha: {{ asistencia.fecha }}</p>
-    <p>Hora: {{ asistencia.hora }}</p>
-  {% endfor %}
-  <h1>Datos del Sistema</h1>
-    {% for registro in registro_rostro %}
-      <p>Fecha de registro de rostro: {{ registro.fecha_registro }}</p>
-    {% endfor %}
+  {% if asistencia_aula %}
+    <p>Fecha de registro: {{ asistencia_aula[-1].fecha }}</p>
+    <p>Hora de registro: {{ asistencia_aula[-1].hora }}</p>
   {% else %}
-    <p>No se encontraron resultados.</p>
+    <p>No se encontraron registros de asistencia de aula.</p>
+  {% endif %}
+
+  <h1>Datos del Sistema</h1>
+  {% for registro in registro_rostro %}
+    <p>Fecha de registro de rostro: {{ registro.fecha_registro }}</p>
+  {% endfor %}
+
+{% else %}
+  <p>No se encontraron resultados.</p>
 {% endif %}
+
 

@@ -7,8 +7,8 @@ import cv2
 import pandas as pd
 from flask import Blueprint, render_template, flash, request, jsonify, session
 from database import Usuario, RegistroRostros, db, NuevoRegistro, AsistenciaAula, AsistenciaLaboratorio
-from functions import extract_faces, identify_face, add_attendance_aula, add_attendance_laboratorio, train_model, \
-    extract_attendance_from_db, get_code_from_db, bcrypt, hash_password, show_alert, get_name_from_db
+from functions import add_attendance_aula, add_attendance_laboratorio, train_model, \
+    extract_attendance_from_db, get_code_from_db, bcrypt, hash_password, show_alert, get_name_from_db, check_password
 from app import datetoday2
 logging.basicConfig(level=logging.INFO)
 
@@ -30,7 +30,7 @@ def login_1():
 def admin():
     return render_template('administrador.html')
 
-@routes_blueprint.route('/registro')
+@routes_blueprint.route('/new')
 def people():
     return render_template('nuevo_registro.html')
 
@@ -38,11 +38,11 @@ def people():
 def upload_form():
     return render_template('upload.html')
 
-@routes_blueprint.route('/asiau')
+@routes_blueprint.route('/aula')
 def asistencia_aula():
     return render_template('attendance_aula.html')
 
-@routes_blueprint.route('/asilab')
+@routes_blueprint.route('/labo')
 def asistencia_laboratorio():
     return render_template('attendance_laboratorio.html')
 @routes_blueprint.route('/reg')
@@ -111,7 +111,7 @@ def start_aula():
             else:
                 cv2.putText(frame, 'Desconocido', (x, y - 20), 2, 0.8, (0, 0, 255), 1, cv2.LINE_AA)
                 cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 0, 255), 2)
-                show_alert(frame)  # Mostrar la alerta en la ventana
+                #show_alert(frame)  # Mostrar la alerta en la ventana
 
             # Ocultar los valores de predicción
             cv2.rectangle(frame, (x, y + h), (x + w, y + h + 40), (0, 0, 0),
@@ -242,7 +242,6 @@ def start_laboratorio():
             return render_template('attendance_laboratorio.html', numero_cubiculo=numero_cubiculo, codigo_alumno=codigo_alumno, hora=hora, usuario=usuario,
                                    asistencia_laboratorio=asistencia_laboratorio, registro_rostro=registro_rostro,codigo_alumno_detectado =codigo_alumno_detectado, no_results=True)
 
-
 @routes_blueprint.route('/add', methods=['GET', 'POST'])
 def add():
     if request.method == 'POST':
@@ -304,7 +303,6 @@ def add():
         return render_template('registro-alumno.html', images_captured=count, total_images=300, nombre=nombre, codigo_alumno=codigo_alumno, hora=hora)
     else:
         return render_template('add.html')
-
 
 @routes_blueprint.route('/upload', methods=['POST'])
 def upload():
@@ -381,7 +379,6 @@ def registro():
 
     return mensaje
 
-
 @routes_blueprint.route('/login', methods=['POST'])
 def login():
     dni = request.form['usuario'].upper()
@@ -390,7 +387,7 @@ def login():
     usuario = db.session.query(NuevoRegistro).filter(NuevoRegistro.numero_documento == dni).first()
 
     # Verificar si el usuario existe y si la contraseña ingresada es correcta
-    if usuario and bcrypt.check_password_hash(usuario.clave_asignada, clave_ingresada):
+    if usuario and check_password(usuario.clave_asignada, clave_ingresada):
         # Iniciar la sesión del usuario
         session['logged_in'] = True
         session['usuario'] = usuario.numero_documento
@@ -400,10 +397,13 @@ def login():
         print("Contraseña ingresada:", clave_ingresada)
         print("Contraseña almacenada:", usuario.clave_asignada)
 
-        return 'Inicio de sesión exitoso'
+        response = jsonify({'message': 'Inicio de sesión exitoso'})
+        response.status_code = 200
+        return response
     else:
-        return 'Inicio de sesión fallido. Por favor verifique su DNI y contraseña.'
-
+        response = jsonify({'message': 'Inicio de sesión fallido. Por favor verifique su DNI y contraseña.'})
+        response.status_code = 401
+        return response
 
 @routes_blueprint.route('/get_attendance_data', methods=['GET'])
 def get_attendance_data():
@@ -412,7 +412,6 @@ def get_attendance_data():
 
     # Renderizar la tabla de asistencia en un template HTML
     return render_template('attendance_table.html', nombre=nombre, codigo_alumno=codigo_alumno, hora=hora)
-
 
 @routes_blueprint.route('/search_student_aula', methods=['POST'])
 def search_student():
@@ -441,7 +440,7 @@ def search_student_laboratorio():
 
     # Realizar la búsqueda del usuario en la base de datos
     usuario = Usuario.query.filter_by(codigo_alumno=codigo_alumno).first()
-    asistencia_laboratorio = AsistenciaLaboratorio.query.filter_by(codigo_alumno=codigo_alumno)
+    asistencia_laboratorio = AsistenciaLaboratorio.query.filter_by(codigo_alumno=codigo_alumno).all()
     registro_rostro = RegistroRostros.query.filter_by(codigo_alumno=codigo_alumno)
 
     if usuario is not None:
