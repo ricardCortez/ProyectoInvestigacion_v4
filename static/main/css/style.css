@@ -5,29 +5,21 @@
 body {
   margin: 0;
   padding: 0;
-  /*background-image: url("https://img2.wallspic.com/crops/6/5/7/1/1/111756/111756-modo_monocromo-fila-ilustracion-angulo-triangulo-3840x2160.jpg");
-  background-repeat: no-repeat;
-  background-size: cover;*/
+  background-color: #555;
 }
 
 .container {
-position: relative;
   display: flex;
   justify-content: center;
   align-items: flex-start;
   align-content: center;
   flex-wrap: wrap;
-  margin-top: 250px; /* Ajusta el margen superior aquí */
-  max-height: calc(100vh - 100px); /* Ajusta la altura máxima del contenedor aquí */
-  overflow: auto; /* Añade desplazamiento cuando el contenido sea mayor que la altura máxima */
-}
-
-.espacio {
-  flex-grow: 1;
+  margin-top: 250px;
+  max-height: calc(100vh - 100px);
+  overflow: auto;
 }
 
 .contenedor {
-  position: relative;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -37,58 +29,25 @@ position: relative;
 }
 
 .contenedor img {
-  width: 150px; /* Ajusta el ancho de la imagen aquí */
-  height: 150px; /* Ajusta la altura de la imagen aquí */
-  margin-bottom: 80px; /* Ajusta el valor según el espacio que desees dejar para el botón */
+  width: 150px;
+  height: 150px;
+  margin-bottom: 80px;
 }
 
-.contenedor img {
-  max-width: 200px;
-  max-height: 200px;
-}
-
-.boton {
-  position: absolute;
-  bottom: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  background-color: #f2f2f2;
-  border-radius: 10px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+button.btn.btn-primary {
+  width: 200px;
+  height: 50px;
+  font-size: 18px;
+  background-color: #6a6a6a;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
   cursor: pointer;
-  padding: 20px 20px;
-  width: 150px; /* Ajusta el ancho del botón aquí */
-  height: 60px; /* Ajusta la altura del botón aquí */
-  text-align: center; /* Centra el texto dentro del botón */
-  justify-content:center; /*CENTRA el texto dentro del botón */
-  display: flex; /* Permite centrar el texto verticalmente */
-  align-items: center; /* Centra el texto verticalmente */
-  white-space: normal; /* Permite que el texto se divida en múltiples líneas */
 }
 
-.boton:hover {
-  background-color: #e6e6e6;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
-}
-
-.imagen-superior {
-  display: flex;
-  /*flex-direction: row;*/
-  justify-content: center;
-  align-items: center;
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  background-color: #f2f2f2;
-  padding: 10px;
-  text-align: center;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.imagen-superior img {
-  max-width: 200px;
-  max-height: 100px;
+button.btn.btn-primary:hover {
+  background-color: #34495E;
+  opacity: 0.8;
 }
 
 @media screen and (max-width: 768px) {
@@ -96,3 +55,39 @@ position: relative;
     flex-direction: column;
   }
 }
+
+.loading-spinner {
+        display: none;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 9999;
+        background-color: rgba(0, 0, 0, 0.5);
+        padding: 20px;
+        border-radius: 5px;
+        color: #fff;
+      }
+
+      .loading-spinner.active {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .loading-spinner .spinner {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        border-top: 4px solid #fff;
+        border-right: 4px solid transparent;
+        animation: spin 1s linear infinite;
+      }
+
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }

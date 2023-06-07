@@ -1,14 +1,43 @@
-const boton1 = document.getElementById("boton1");
-boton1.addEventListener("click", function() {
-  window.location.href = "/static/login-1/login-1.html";
+// Obtén una referencia a los botones
+var adminBtn = document.getElementById("panel-adm-btn");
+var personalBtn = document.getElementById("panel-padm-btn");
+var docenteBtn = document.getElementById("panel-docente-btn");
+
+// Obtén una referencia al div del spinner
+var spinnerDiv = document.getElementById("loading-spinner");
+
+// Agrega un controlador de eventos para cada botón
+adminBtn.addEventListener("click", function() {
+  mostrarSpinner();
+  setTimeout(function() {
+    window.location.href = "/logadm";
+  }, 2000); // 3 segundos de espera antes de redirigir
 });
 
-const boton2 = document.getElementById("boton2");
-boton2.addEventListener("click", function() {
-  window.location.href = "/static/login-2/login-2.html";
+personalBtn.addEventListener("click", function() {
+  mostrarSpinner();
+  setTimeout(function() {
+    window.location.href = " "; // Redirige a la página deseada
+  }, 2000); // 3 segundos de espera antes de redirigir
 });
 
-const boton3 = document.getElementById("boton3");
-boton3.addEventListener("click", function() {
-  window.location.href = "/static/login-3/login-3.html";
+docenteBtn.addEventListener("click", function() {
+  mostrarSpinner();
+  setTimeout(function() {
+    window.location.href = "/docente";
+  }, 2000); // 3 segundos de espera antes de redirigir
+});
+
+// Función para mostrar el spinner
+function mostrarSpinner() {
+  // Agrega la clase "active" al div del spinner
+  spinnerDiv.classList.add("active");
+}
+
+// Manejar el evento pageshow para ocultar el spinner al retroceder la página
+window.addEventListener("pageshow", function(event) {
+  if (event.persisted) {
+    // La página se está mostrando desde el caché (se retrocedió)
+    spinnerDiv.classList.remove("active");
+  }
 });

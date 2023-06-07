@@ -1,5 +1,0 @@
-$(function(){
-	$.validate({
-        modules : 'security'
-    });
-})

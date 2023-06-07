@@ -1,6 +1,6 @@
 
 @import url(fontawesome.css);
-@import url("<link href="https://fonts.googleapis.com/css?family=Montserrat:100,200,300,400,500,600,700,800,900" rel="stylesheet">");
+@import url("https://fonts.googleapis.com/css?family=Montserrat:100,200,300,400,500,600,700,800,900");
 body {
     font-family: 'Montserrat', sans-serif;
 }
@@ -59,10 +59,7 @@ p {
     border: 2px solid rgba(250,250,250,0.1);
 }
 
-
-/* Buttons */
-
-.main-button a {
+.main-button button {
     background-color: #f5a425;
     color: #fff;
     font-size: 13px;
@@ -70,6 +67,7 @@ p {
     letter-spacing: 0.5px;
     font-weight: 700;
     padding: 12px 20px;
+    border-radius: 10px;
     display: inline-block;
     outline: none;
 }

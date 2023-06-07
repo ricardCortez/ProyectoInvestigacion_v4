@@ -5,18 +5,26 @@
 </head>
 <body>
   <h1>Resultados de búsqueda</h1>
-  <div id="resultado-busqueda">
+  <div id="student-search-form">
     {% if usuario %}
-      <ul>
-        <li>
-          <strong>ID:</strong> {{ usuario.id }}<br>
-          <strong>Codigo:</strong> {{ usuario.codigo_alumno }}<br>
-          <strong>Nombre:</strong> {{ usuario.nombre }}<br>
-          <strong>Fecha de ingreso:</strong> {{ usuario.fecha_ingreso }}<br>
-          <strong>Ciclo Academico Actual:</strong> {{ usuario.ciclo_academico }}<br>
-          <strong>Fecha de ultima actualizacion de foto:</strong> {{ usuario.ultima_actualizacion_foto }}<br>
-        </li>
-      </ul>
+      <h1>Detalles del Usuario</h1>
+      <p>Código de Alumno: {{ usuario.codigo_alumno }}</p>
+      <p>Nombre: {{ usuario.nombre }}</p>
+      <p>Ciclo Actual: {{ usuario.ciclo_academico }}</p>
+      <p>Fecha de ingreso: {{ usuario.fecha_ingreso }}</p>
+
+      <h1>Asistencia de Aula</h1>
+      {% if asistencia_aula %}
+        <p>Fecha de registro: {{ asistencia_aula[-1].fecha }}</p>
+        <p>Hora de registro: {{ asistencia_aula[-1].hora }}</p>
+      {% else %}
+        <p>No se encontraron registros de asistencia de aula.</p>
+      {% endif %}
+
+      <h1>Datos del Sistema</h1>
+      {% for registro in registro_rostro %}
+        <p>Fecha de registro de rostro: {{ registro.fecha_registro }}</p>
+      {% endfor %}
     {% else %}
       <p>No se encontraron resultados.</p>
     {% endif %}

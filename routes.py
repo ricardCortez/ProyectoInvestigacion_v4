@@ -8,7 +8,7 @@ import pandas as pd
 from flask import Blueprint, render_template, flash, request, jsonify, session
 from database import Usuario, RegistroRostros, db, NuevoRegistro, AsistenciaAula, AsistenciaLaboratorio
 from functions import add_attendance_aula, add_attendance_laboratorio, train_model, \
-    extract_attendance_from_db, get_code_from_db, bcrypt, hash_password, show_alert, get_name_from_db, check_password
+    extract_attendance_from_db, get_code_from_db, hash_password, show_alert, get_name_from_db, check_password
 from app import datetoday2
 logging.basicConfig(level=logging.INFO)
 
@@ -22,10 +22,10 @@ def index():
 def main():
     return render_template('main.html')
 
-@routes_blueprint.route('/log')
+@routes_blueprint.route('/logadm')
 def login_1():
     return render_template('login-1.html')
-
+# ------------------------- rutas del administrador --------------------
 @routes_blueprint.route('/adm')
 def admin():
     return render_template('administrador.html')
@@ -38,17 +38,27 @@ def people():
 def upload_form():
     return render_template('upload.html')
 
-@routes_blueprint.route('/aula')
-def asistencia_aula():
-    return render_template('attendance_aula.html')
-
-@routes_blueprint.route('/labo')
-def asistencia_laboratorio():
-    return render_template('attendance_laboratorio.html')
 @routes_blueprint.route('/reg')
 def home():
     return render_template('registro-alumno.html')
+# ------------------------- fin de las rutas del administrador --------------------
 
+# ------------------------- rutas del docente --------------------
+@routes_blueprint.route('/docente')
+def panel_docente():
+    return render_template('panel_docente.html')
+@routes_blueprint.route('/get_attendance_aula', methods=['GET'])
+def get_attendance_aula():
+    # ... obtén los datos necesarios para renderizar el template ...
+    return render_template('attendance_aula.html')
+@routes_blueprint.route('/get_attendance_laboratorio', methods=['GET'])
+def get_attendance_laboratorio():
+    # ... obtén los datos necesarios para renderizar el template ...
+    return render_template('attendance_laboratorio.html')
+# ------------------------- fin de rutas del docente --------------------
+
+
+#------------------------ INICIO DE FUNCIONES --------------------------------
 @routes_blueprint.route('/start/aula', methods=['GET'])
 def start_aula():
     cap = cv2.VideoCapture(0)
@@ -86,7 +96,7 @@ def start_aula():
 
             confidence = 0  # Valor predeterminado de confianza
 
-            if result[1] < 90:
+            if result[1] < 70:
                 identified_person = imagePaths[result[0]]  # Nombre del usuario identificado
                 recognized_users.add(identified_person)
                 confidence = round((1 - (result[1] / 100)) * 100 * 2, 2)  # Calcular la confianza como porcentaje
@@ -134,7 +144,10 @@ def start_aula():
     for c, h in zip(codigo_alumno, hora):
         logging.info(f"Código: {c}, Hora: {h}")
 
-    return render_template('attendance_aula.html', codigo_alumno=codigo_alumno, hora=hora, datetoday2=datetoday2)
+    if request.is_xhr:  # Si la solicitud es AJAX
+        return render_template('attendance_aula.html', codigo_alumno=codigo_alumno, hora=hora, datetoday2=datetoday2)
+    else:  # Si no, renderiza la página completa
+        return render_template('panel_docente.html')
 
 @routes_blueprint.route('/start/laboratorio', methods=['GET', 'POST'])
 def start_laboratorio():
@@ -431,7 +444,7 @@ def search_student():
         return render_template('attendance_aula.html', usuario=usuario,
                                asistencia_aula=asistencia_aula, registro_rostro=registro_rostro)
 
-    return render_template('attendance_aula.html', no_results=True)
+    return render_template('resultados_busqueda.html', no_results=True)
 
 @routes_blueprint.route('/search_student_laboratorio', methods=['POST'])
 def search_student_laboratorio():

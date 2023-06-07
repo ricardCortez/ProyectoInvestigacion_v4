@@ -1,0 +1,82 @@
+.row.text-center {
+  margin-top: 30px;
+}
+
+h2 {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+input[type="text"].form-control {
+  width: 300px;
+  padding: 10px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+}
+.input-label {
+  font-size: 18px;
+}
+
+button.btn.btn-primary {
+  padding: 10px 20px;
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+button.btn.btn-primary:hover {
+  background-color: #34495E;
+}
+.buttont {
+  display: inline-block;
+  padding: 10px 20px;
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  margin-top: 10px;
+  border-radius: 5px;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.buttont:hover {
+  background-color: #34495E;
+}
+.button:hover {
+  background-color: #34495E;
+}
+
+h1 {
+  font-size: 20px;
+  font-weight: bold;
+  margin-top: 30px;
+  margin-bottom: 10px;
+}
+
+p {
+  margin-bottom: 5px;
+}
+
+.no-results {
+  font-style: italic;
+  color: #999;
+}
+
+.date-info {
+  font-weight: bold;
+}
+
+.system-data {
+  margin-top: 30px;
+}
+
+.system-data p {
+  margin-bottom: 5px;
+}

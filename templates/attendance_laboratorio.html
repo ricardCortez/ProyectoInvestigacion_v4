@@ -1,10 +1,16 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Asistencia para laboratorio</title>
+  <link rel="stylesheet" href="/static/css/styles_attendance.css">
+</head>
+<body>
 <div class="row text-center">
   <div class="col">
     <h2>Asistencia para laboratorio</h2>
-
     <form action="/start/laboratorio" method="POST">
-      <label for="numero_cubiculo">Número de Cubículo:</label>
-      <input type="text" name="numero_cubiculo" id="numero_cubiculo" required>
+      <label for="numero_cubiculo" class="input-label">Número de Cubículo:</label>
+      <input type="text" class="form-control" name="numero_cubiculo" id="numero_cubiculo" required placeholder="Ingrese el número de cubículo">
       <button type="submit" class="btn btn-primary">Validar Rostro</button>
     </form>
     <form action="/search_student_laboratorio" method="POST">
@@ -42,5 +48,5 @@
 {% else %}
   <p>No se encontraron resultados.</p>
 {% endif %}
-
-
+</body>
+</html>
