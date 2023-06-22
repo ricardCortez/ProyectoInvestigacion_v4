@@ -7,7 +7,10 @@ import pygame
 from datetime import datetime, date
 import numpy as np
 from app import app
+from functools import wraps
+from flask import redirect, url_for, session, request
 from werkzeug.security import generate_password_hash, check_password_hash
+
 
 # Extraer la cara de una imagen
 def extract_faces(img,
@@ -19,6 +22,7 @@ def extract_faces(img,
     else:
         return []
 
+
 # Identifica la cara usando el modelo ML
 def identify_face(facearray):
     face_recognizer = cv2.face.LBPHFaceRecognizer_create()
@@ -26,6 +30,7 @@ def identify_face(facearray):
 
     label, _ = face_recognizer.predict(facearray)
     return label
+
 
 # Función para entrenar el modelo de reconocimiento facial
 def train_model():
@@ -58,6 +63,7 @@ def train_model():
     face_recognizer.write('static/modelo_LBPHFace.xml')
     print("Modelo almacenado...")
 
+
 # Extraer información del archivo de asistencia de hoy en la carpeta de asistencia
 def extract_attendance_from_db():
     try:
@@ -76,10 +82,18 @@ def extract_attendance_from_db():
         logging.error(f"Error al extraer los registros de asistencia desde la base de datos: {str(e)}")
         return [], [], [], [], [], []
 
+
 def add_attendance_aula(codigo_alumno):
     try:
-        # Crea un nuevo registro de asistencia en aula hacia la base de datos
-        asistencia = AsistenciaAula(codigo_alumno=codigo_alumno, fecha=date.today(), hora=datetime.now().time())
+        # Encuentra el usuario correspondiente al codigo_alumno
+        usuario = Usuario.query.filter_by(codigo_alumno=codigo_alumno).first()
+        if usuario is None:
+            logging.error(f"No se encontró el usuario con el código: {codigo_alumno}")
+            return
+
+        # Crea un nuevo registro de asistencia en aula
+        asistencia = AsistenciaAula(usuario_id=usuario.id, fecha=date.today(), hora=datetime.now().time())
+
         db.session.add(asistencia)
         db.session.commit()
         logging.info("Asistencia en aula registrada exitosamente.")
@@ -87,16 +101,25 @@ def add_attendance_aula(codigo_alumno):
         db.session.rollback()
         logging.error(f"Error al registrar la asistencia en aula hacia la base de datos: {str(e)}")
 
+
 def add_attendance_laboratorio(numero_cubiculo, codigo_alumno):
     try:
-        # Crea un nuevo registro de asistencia en laboratorio hacia la base de datos
-        asistencia = AsistenciaLaboratorio(numero_cubiculo=numero_cubiculo, codigo_alumno=codigo_alumno, fecha=date.today(), hora=datetime.now().time())
+        # Encuentra el usuario correspondiente al codigo_alumno
+        usuario = Usuario.query.filter_by(codigo_alumno=codigo_alumno).first()
+        if usuario is None:
+            logging.error(f"No se encontró el usuario con el código: {codigo_alumno}")
+            return
+
+        # Crea un nuevo registro de asistencia en laboratorio
+        asistencia = AsistenciaLaboratorio(numero_cubiculo=numero_cubiculo, usuario_id=usuario.id,
+                                           fecha=date.today(), hora=datetime.now().time())
         db.session.add(asistencia)
         db.session.commit()
         logging.info("Asistencia en laboratorio registrada exitosamente.")
     except Exception as e:
         db.session.rollback()
         logging.error(f"Error al registrar la asistencia en laboratorio hacia la base de datos: {str(e)}")
+
 
 def get_name_from_db(nombre):
     # Supongamos que en tu tabla RegistroRostros, el nombre del registro se guarda en la columna 'nombre'
@@ -105,6 +128,7 @@ def get_name_from_db(nombre):
         return registro_rostro.nombre
     else:
         return None
+
 
 def get_code_from_db(codigo_alumno):
     try:
@@ -118,7 +142,34 @@ def get_code_from_db(codigo_alumno):
         logging.error(f"Error al obtener el usuario desde la base de datos: {str(e)}")
         return None
 
+
+def admin_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if 'logged_in' not in session or session['rol'] != 'Administrador':
+            return redirect(url_for('routes.login', next=request.url))
+        return f(*args, **kwargs)
+    return decorated_function
+
+def personal_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if 'logged_in' not in session or session['rol'] != 'Personal administrativo':
+            return redirect(url_for('routes.login', next=request.url))
+        return f(*args, **kwargs)
+    return decorated_function
+
+def docente_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if 'logged_in' not in session or session['rol'] != 'Docente':
+            return redirect(url_for('routes.login', next=request.url))
+        return f(*args, **kwargs)
+    return decorated_function
+
+
 bcrypt = Bcrypt(app)
+
 
 def authenticate_user(usuario, contrasena):
     user = Usuario.query.filter_by(usuario=usuario).first()
@@ -128,11 +179,14 @@ def authenticate_user(usuario, contrasena):
     else:
         return None
 
+
 def hash_password(password):
     return generate_password_hash(password)
 
+
 def check_password(hashed_password, password):
     return check_password_hash(hashed_password, password)
+
 
 # Función para mostrar la imagen de alerta y reproducir el sonido
 def show_alert(frame):
@@ -159,4 +213,3 @@ def show_alert(frame):
     cv2.imshow('Asistencia', frame)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
-

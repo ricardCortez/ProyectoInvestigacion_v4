@@ -46,33 +46,29 @@ $(document).ready(function() {
       type: "GET",
       success: function(response) {
         $("#campo-dinamico").html(response);
-
-        // Una vez que la respuesta ha sido renderizada en el campo dinámico, puedes escuchar el evento de envío del formulario
-        // Escucha el evento de envío del formulario de búsqueda de estudiantes
-        $("#student-search-form").on('submit', function(e) {
-          e.preventDefault();  // Previene el comportamiento por defecto del formulario
-
-          // Realiza una solicitud AJAX a la ruta de búsqueda de estudiantes en tu servidor
-          $.ajax({
-            url: "/search_student_laboratorio",
-            type: "POST",
-            data: $(this).serialize(),  // Serializa los datos del formulario para el envío
-            success: function(response) {
-              // Muestra los resultados de la búsqueda en "campo-dinamico"
-              $("#campo-dinamico").html(response);
-            }
-          });
-        });
       }
     });
-
   });
 
-  // Escucha el evento de clic del enlace "3"
-  $("#enlace-link_4").click(function(e) {
-    e.preventDefault();  // Previene el comportamiento por defecto del enlace
-    $("#campo-dinamico").empty();  // Vacía el contenido de "campo-dinamico"
-    // Agrega aquí el código para cargar el contenido de "link 3"
+  // Escucha el evento de clic del enlace "4"
+$("#enlace-link_4").click(function(e) {
+  e.preventDefault();  // Previene el comportamiento por defecto del enlace
+  $("#campo-dinamico").empty();  // Vacía el contenido de "campo-dinamico"
+
+  // Realiza una solicitud AJAX a la ruta que devuelve el template "resultados_busqueda.html"
+  $.ajax({
+    url: '/busqueda_alumnos',  // Asegúrate de reemplazar esto con la ruta correcta
+    type: 'GET',
+    success: function(data) {
+      // En caso de éxito, carga el contenido del template en "campo-dinamico"
+      $("#campo-dinamico").html(data);
+    },
+    error: function(error) {
+      // En caso de error, muestra un mensaje
+      console.log('Ha ocurrido un error al cargar el template', error);
+    }
   });
+});
 
 });
+

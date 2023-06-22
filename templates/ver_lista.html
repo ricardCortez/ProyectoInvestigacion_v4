@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Reporte de Asistencia</title>
+  <link rel="stylesheet" href="/static/css/style_ver_lista.css">
+  <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.5/dist/sweetalert2.min.css" rel="stylesheet">
+</head>
+<body>
+
+<div class="container">
+  <form id="reporte-form" action="/buscar_asistencia" method="POST">
+    <div class="form-group">
+      <label for="searchLocation">Elegir ubicación:</label>
+      <select id="searchLocation" name="searchLocation">
+        <option value="aula">Aula</option>
+        <option value="laboratorio">Laboratorio</option>
+      </select>
+      <button type="submit" class="btn btn-primary">Generar Reporte</button>
+    </div>
+  </form>
+
+  {% if asistencias and search_location == 'laboratorio' %}
+  <table>
+    <thead>
+      <tr>
+        <th>Código de Alumno</th>
+        <th>Nombre</th>
+        <th>Número de Cubículo</th>
+        <th>Fecha</th>
+        <th>Hora</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for asistencia in asistencias %}
+        <tr>
+          <td>{{ asistencia.usuario_lab.codigo_alumno }}</td>
+          <td>{{ asistencia.usuario_lab.nombre }}</td>
+          <td contenteditable="false" class="cubiculo">{{ asistencia.numero_cubiculo }}</td>
+          <td>{{ asistencia.fecha }}</td>
+          <td>{{ asistencia.hora }}</td>
+          <td>
+            <button class="actualizar">Actualizar</button>
+            <button class="guardar" style="display:none;">Guardar</button>
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% elif asistencias and search_location == 'aula' %}
+  <table>
+    <thead>
+      <tr>
+        <th>Código de Alumno</th>
+        <th>Nombre</th>
+        <th>Fecha</th>
+        <th>Hora</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for asistencia in asistencias %}
+        <tr>
+          <td>{{ asistencia.usuario_aula.codigo_alumno }}</td>
+          <td>{{ asistencia.usuario_aula.nombre }}</td>
+          <td>{{ asistencia.fecha }}</td>
+          <td>{{ asistencia.hora }}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% else %}
+  <p>No se encontraron resultados.</p>
+{% endif %}
+</div>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="/static/js/ver_lista.js"></script>
+</body>
+</html>

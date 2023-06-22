@@ -2,14 +2,19 @@ from flask_sqlalchemy import SQLAlchemy
 
 db = SQLAlchemy()
 
+
 class Usuario(db.Model):
     __tablename__ = 'usuarios'
     id = db.Column(db.Integer, primary_key=True)
-    codigo_alumno = db.Column(db.String(100))
+    codigo_alumno = db.Column(db.String(100), unique=True)
     nombre = db.Column(db.String(100))
     fecha_ingreso = db.Column(db.Date)
     ciclo_academico = db.Column(db.String(100))
     ultima_actualizacion_foto = db.Column(db.Date)
+    asistencias_aula = db.relationship('AsistenciaAula', backref='usuario', lazy=True,
+                                       foreign_keys='AsistenciaAula.usuario_id')
+    asistencias_laboratorio = db.relationship('AsistenciaLaboratorio', backref='usuario', lazy=True,
+                                              foreign_keys='AsistenciaLaboratorio.usuario_id')
 
     def __init__(self, codigo_alumno, nombre, fecha_ingreso, ciclo_academico, ultima_actualizacion_foto):
         self.codigo_alumno = codigo_alumno
@@ -18,15 +23,18 @@ class Usuario(db.Model):
         self.ciclo_academico = ciclo_academico
         self.ultima_actualizacion_foto = ultima_actualizacion_foto
 
+
 class AsistenciaAula(db.Model):
     __tablename__ = 'asistencia_aula'
     id = db.Column(db.Integer, primary_key=True)
-    codigo_alumno = db.Column(db.String(50))
+    usuario_id = db.Column(db.Integer, db.ForeignKey('usuarios.id'), nullable=False)
     fecha = db.Column(db.Date)
     hora = db.Column(db.Time)
-    def __init__(self, codigo_alumno, fecha, hora):
-        #self.nombre = nombre
-        self.codigo_alumno = codigo_alumno
+
+    usuario_aula = db.relationship('Usuario', backref=db.backref('asistencias_aula_relacion', lazy=True))
+
+    def __init__(self, usuario_id, fecha, hora):
+        self.usuario_id = usuario_id
         self.fecha = fecha
         self.hora = hora
 
@@ -34,14 +42,20 @@ class AsistenciaLaboratorio(db.Model):
     __tablename__ = 'asistencia_laboratorio'
     id = db.Column(db.Integer, primary_key=True)
     numero_cubiculo = db.Column(db.String(100))
-    codigo_alumno = db.Column(db.String(50))
+    usuario_id = db.Column(db.Integer, db.ForeignKey('usuarios.id'), nullable=False)
     fecha = db.Column(db.Date)
     hora = db.Column(db.Time)
-    def __init__(self,numero_cubiculo, codigo_alumno, fecha, hora):
+
+    usuario_lab = db.relationship('Usuario', backref=db.backref('asistencias_laboratorio_relacion', lazy=True),
+                                  foreign_keys=[usuario_id])
+
+    def __init__(self, numero_cubiculo, usuario_id, fecha, hora):
         self.numero_cubiculo = numero_cubiculo
-        self.codigo_alumno = codigo_alumno
+        self.usuario_id = usuario_id
         self.fecha = fecha
         self.hora = hora
+
+
 
 class RegistroRostros(db.Model):
     __tablename__ = 'registro_rostros'

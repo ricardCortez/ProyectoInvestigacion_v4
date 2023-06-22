@@ -3,41 +3,33 @@ var adminBtn = document.getElementById("panel-adm-btn");
 var personalBtn = document.getElementById("panel-padm-btn");
 var docenteBtn = document.getElementById("panel-docente-btn");
 
-// Obtén una referencia al div del spinner
-var spinnerDiv = document.getElementById("loading-spinner");
-
 // Agrega un controlador de eventos para cada botón
 adminBtn.addEventListener("click", function() {
-  mostrarSpinner();
-  setTimeout(function() {
-    window.location.href = "/logadm";
-  }, 2000); // 3 segundos de espera antes de redirigir
+  localStorage.setItem('rol', 'Administrador');
+  window.location.href = "/logadm";
 });
 
 personalBtn.addEventListener("click", function() {
-  mostrarSpinner();
-  setTimeout(function() {
-    window.location.href = " "; // Redirige a la página deseada
-  }, 2000); // 3 segundos de espera antes de redirigir
+  localStorage.setItem('rol', 'Personal administrativo');
+  window.location.href = "/logadm";
 });
 
 docenteBtn.addEventListener("click", function() {
-  mostrarSpinner();
-  setTimeout(function() {
-    window.location.href = "/docente";
-  }, 2000); // 3 segundos de espera antes de redirigir
+  localStorage.setItem('rol', 'Docente');
+  window.location.href = "/logadm";
 });
 
-// Función para mostrar el spinner
-function mostrarSpinner() {
-  // Agrega la clase "active" al div del spinner
-  spinnerDiv.classList.add("active");
+// Función para establecer el rol seleccionado
+function setRolSeleccionado(rol) {
+  $.ajax({
+    type: 'POST',
+    url: '/set-rol',
+    data: {
+      'rol': rol
+    },
+    success: function() {
+      // Redirige al usuario al formulario de inicio de sesión después de establecer el rol seleccionado
+      window.location.href = "/logadm";
+    }
+  });
 }
-
-// Manejar el evento pageshow para ocultar el spinner al retroceder la página
-window.addEventListener("pageshow", function(event) {
-  if (event.persisted) {
-    // La página se está mostrando desde el caché (se retrocedió)
-    spinnerDiv.classList.remove("active");
-  }
-});

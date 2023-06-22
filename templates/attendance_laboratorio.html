@@ -5,48 +5,15 @@
   <link rel="stylesheet" href="/static/css/styles_attendance.css">
 </head>
 <body>
-<div class="row text-center">
-  <div class="col">
-    <h2>Asistencia para laboratorio</h2>
-    <form action="/start/laboratorio" method="POST">
-      <label for="numero_cubiculo" class="input-label">Número de Cubículo:</label>
-      <input type="text" class="form-control" name="numero_cubiculo" id="numero_cubiculo" required placeholder="Ingrese el número de cubículo">
-      <button type="submit" class="btn btn-primary">Validar Rostro</button>
-    </form>
-    <form action="/search_student_laboratorio" method="POST">
-      <div class="form-group">
-        <p class="form-control-static">{{ codigo_alumno_detectado }}</p>
-        <input type="text" class="form-control" name="codigo_alumno" placeholder="Autocompleta" value="{{ codigo_alumno_detectado }}" readonly autocomplete="on" style="display: none;">
-      </div>
-      <button type="submit" class="btn btn-primary">Buscar alumno</button>
-    </form>
+  <div class="row text-center">
+    <div class="col">
+      <h2>Asistencia para laboratorio</h2>
+      <form action="/start/laboratorio" method="POST">
+        <label for="numero_cubiculo" class="input-label">Número de Cubículo asignado:</label>
+        <input type="text" class="form-control" name="numero_cubiculo" id="numero_cubiculo" value="{{ numero_cubiculo }}" readonly>
+        <button type="submit" class="btn btn-primary">Validar Rostro</button>
+      </form>
+    </div>
   </div>
-</div>
-<script src="/static/js/resultado_busqueda.js"></script>
-
-{% if usuario %}
-  <h1>Detalles del Usuario</h1>
-  <p>Código de Alumno: {{ usuario.codigo_alumno }}</p>
-  <p>Nombre: {{ usuario.nombre }}</p>
-  <p>Ciclo Actual: {{ usuario.ciclo_academico }}</p>
-  <p>Fecha de ingreso: {{ usuario.fecha_ingreso }}</p>
-
-  <h1>Asistencia de Aula</h1>
-  {% if asistencia_aula %}
-    <p>Fecha de registro: {{ asistencia_aula[-1].fecha }}</p>
-    <p>Hora de registro: {{ asistencia_aula[-1].hora }}</p>
-  {% else %}
-    <p>No se encontraron registros de asistencia de aula.</p>
-  {% endif %}
-
-  <h1>Registro de Rostro</h1>
-  {% for registro in registro_rostro %}
-    <p>Fecha de registro: {{ registro.fecha_registro }}</p>
-    <!-- Otros campos del registro de rostro -->
-    <hr>
-  {% endfor %}
-{% else %}
-  <p>No se encontraron resultados.</p>
-{% endif %}
 </body>
 </html>
