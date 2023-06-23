@@ -1,15 +1,16 @@
 $(document).ready(function() {
 
-// Escucha el evento de clic del enlace "3"
+  // Escucha el evento de clic del enlace "1"
   $("#enlace-link_1").click(function(e) {
     e.preventDefault();  // Previene el comportamiento por defecto del enlace
     $("#campo-dinamico").empty();  // Vacía el contenido de "campo-dinamico"
-    // Agrega aquí el código para cargar el contenido de "link 3"
+    // Agrega aquí el código para cargar el contenido de "link 1"
   });
 
-  // Escucha el evento de clic del enlace "1"
+  // Escucha el evento de clic del enlace "2"
   $("#enlace-link_2").click(function(e) {
     e.preventDefault();  // Previene el comportamiento por defecto del enlace
+    $("#campo-dinamico").empty();  // Vacía el contenido de "campo-dinamico"
     $.ajax({
       url: "/get_attendance_aula",  // La ruta de tu servidor que devuelve el HTML de attendance_aula
       type: "GET",
@@ -36,13 +37,12 @@ $(document).ready(function() {
     });
   });
 
-  // Escucha el evento de clic del enlace "2"
+  // Escucha el evento de clic del enlace "3"
   $("#enlace-link_3").click(function(e) {
     e.preventDefault();  // Previene el comportamiento por defecto del enlace
     $("#campo-dinamico").empty();  // Vacía el contenido de "campo-dinamico"
-
     $.ajax({
-      url: "/get_attendance_laboratorio",  // La ruta de tu servidor que devuelve el HTML de attendance_aula
+      url: "/get_attendance_laboratorio",  // La ruta de tu servidor que devuelve el HTML de attendance_laboratorio
       type: "GET",
       success: function(response) {
         $("#campo-dinamico").html(response);
@@ -51,24 +51,40 @@ $(document).ready(function() {
   });
 
   // Escucha el evento de clic del enlace "4"
-$("#enlace-link_4").click(function(e) {
-  e.preventDefault();  // Previene el comportamiento por defecto del enlace
+  $("#enlace-link_4").click(function(e) {
+    e.preventDefault();  // Previene el comportamiento por defecto del enlace
   $("#campo-dinamico").empty();  // Vacía el contenido de "campo-dinamico"
 
-  // Realiza una solicitud AJAX a la ruta que devuelve el template "resultados_busqueda.html"
-  $.ajax({
-    url: '/busqueda_alumnos',  // Asegúrate de reemplazar esto con la ruta correcta
-    type: 'GET',
-    success: function(data) {
-      // En caso de éxito, carga el contenido del template en "campo-dinamico"
-      $("#campo-dinamico").html(data);
-    },
-    error: function(error) {
-      // En caso de error, muestra un mensaje
-      console.log('Ha ocurrido un error al cargar el template', error);
-    }
+    // Cargar las secciones en el menú desplegable
+    //cargarSecciones();
+
+      // Realiza una solicitud AJAX a la ruta que devuelve el template "resultados_busqueda.html"
+      $.ajax({
+        url: '/busqueda_alumnos',  // Asegúrate de reemplazar esto con la ruta correcta
+        type: 'GET',
+        success: function(data) {
+          // En caso de éxito, carga el contenido del template en "campo-dinamico"
+          $("#campo-dinamico").html(data);
+        },
+        error: function(error) {
+          // En caso de error, muestra un mensaje
+          console.log('Ha ocurrido un error al cargar el template', error);
+        }
+      });
   });
-});
+
+  // Escucha el evento de clic del enlace "5"
+  $("#enlace-link_5").click(function(e) {
+    e.preventDefault();  // Previene el comportamiento por defecto del enlace
+    $("#campo-dinamico").empty();  // Vacía el contenido de "campo-dinamico"
+    // Agrega aquí el código para cargar el contenido de "link 5"
+  });
+
+  // Escucha el evento de clic del enlace "6"
+  $("#enlace-link_6").click(function(e) {
+    e.preventDefault();  // Previene el comportamiento por defecto del enlace
+    $("#campo-dinamico").empty();  // Vacía el contenido de "campo-dinamico"
+    // Agrega aquí el código para cargar el contenido de "link 6"
+  });
 
 });
-

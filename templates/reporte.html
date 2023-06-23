@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Lista de Estudiantes</title>
+</head>
+<body>
+  <h1>Lista de Estudiantes y Secciones</h1>
+  <table>
+    <thead>
+      <tr>
+        <th>Código de Alumno</th>
+        <th>Nombre</th>
+        <th>Secciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for estudiante in estudiantes %}
+        <tr>
+          <td>{{ estudiante.codigo_alumno }}</td>
+          <td>{{ estudiante.nombre }}</td>
+          <td>
+            {% if estudiante.secciones %}
+              <ul>
+                {% for seccion in estudiante.secciones %}
+                  <li>{{ seccion.nombre_seccion }}</li>
+                {% endfor %}
+              </ul>
+            {% else %}
+              <p>No secciones asignadas</p>
+            {% endif %}
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="static/js/reporte.js"></script>
+</body>
+</html>

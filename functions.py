@@ -1,15 +1,17 @@
 import cv2
 import os
 import logging
-from database import db, AsistenciaLaboratorio, RegistroRostros, Usuario, AsistenciaAula
+from database import db, AsistenciaLaboratorio, RegistroRostros, Usuario, AsistenciaAula, Secciones, profesor_seccion
 from flask_bcrypt import Bcrypt
 import pygame
 from datetime import datetime, date
 import numpy as np
 from app import app
 from functools import wraps
-from flask import redirect, url_for, session, request
+from flask import redirect, url_for, session, request, jsonify
 from werkzeug.security import generate_password_hash, check_password_hash
+from sqlalchemy import delete
+from sqlalchemy.orm import joinedload
 
 
 # Extraer la cara de una imagen
@@ -82,24 +84,21 @@ def extract_attendance_from_db():
         logging.error(f"Error al extraer los registros de asistencia desde la base de datos: {str(e)}")
         return [], [], [], [], [], []
 
+def get_section_id(section_name):
+    section = db.session.query(Secciones).filter(Secciones.nombre_seccion == section_name).first()
+    return section.id if section else None
 
-def add_attendance_aula(codigo_alumno):
-    try:
-        # Encuentra el usuario correspondiente al codigo_alumno
-        usuario = Usuario.query.filter_by(codigo_alumno=codigo_alumno).first()
-        if usuario is None:
-            logging.error(f"No se encontró el usuario con el código: {codigo_alumno}")
-            return
-
-        # Crea un nuevo registro de asistencia en aula
-        asistencia = AsistenciaAula(usuario_id=usuario.id, fecha=date.today(), hora=datetime.now().time())
-
+def add_attendance_aula(codigo_alumno, section_id):
+    fecha = date.today()
+    hora = datetime.now().time()
+    usuario = db.session.query(Usuario).filter(Usuario.codigo_alumno == codigo_alumno).first()
+    if usuario:
+        asistencia = AsistenciaAula(usuario_id=usuario.id, fecha=fecha, hora=hora, seccion_id=section_id)
         db.session.add(asistencia)
         db.session.commit()
         logging.info("Asistencia en aula registrada exitosamente.")
-    except Exception as e:
-        db.session.rollback()
-        logging.error(f"Error al registrar la asistencia en aula hacia la base de datos: {str(e)}")
+    else:
+        logging.error(f"No se encontró el usuario con el código: {codigo_alumno}")
 
 
 def add_attendance_laboratorio(numero_cubiculo, codigo_alumno):
@@ -124,8 +123,8 @@ def add_attendance_laboratorio(numero_cubiculo, codigo_alumno):
 def get_name_from_db(nombre):
     # Supongamos que en tu tabla RegistroRostros, el nombre del registro se guarda en la columna 'nombre'
     registro_rostro = RegistroRostros.query.filter_by(nombre=nombre).first()
-    if registro_rostro is not None:
-        return registro_rostro.nombre
+    if registro_rostro is not None and registro_rostro.usuario is not None:
+        return registro_rostro.usuario.nombre
     else:
         return None
 

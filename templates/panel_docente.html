@@ -8,6 +8,12 @@
 <body>
   <header>
     <h1>Panel del docente</h1>
+    <div id="usuario-info">
+      {% if 'nombre_usuario' in session %}
+      <span id="nombre-usuario">Bienvenido, {{ session['nombre_usuario'] }}</span>
+      <a href="/logout" id="cerrar-sesion">Cerrar sesión</a>
+      {% endif %}
+    </div>
   </header>
   <nav>
     <ul>
@@ -24,10 +30,12 @@
     <div id="contenido-adicional">
       <!-- texto o algo mas-->
       <div id="campo-dinamico">
-
+        {% if 'secciones_asignadas' in session %}
+          {% for seccion in session['secciones_asignadas'] %}
+            <p>{{ seccion.nombre }}</p>
+          {% endfor %}
+        {% endif %}
       </div>
-      <!--<p>Pagima en construccion</p>-->
-
     </div>
   </main>
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>

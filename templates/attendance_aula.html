@@ -8,8 +8,19 @@
   <div class="row text-center">
     <div class="col">
       <h2>Asistencia para aula</h2>
-      <a href="/start/aula" class="buttont">Toma de asistencia</a>
+      <form method="post" action="/start_aula">
+        <div class="form-group">
+          <label for="section_name">Seleccione una sección:</label>
+          <select class="form-control" id="section_name" name="section_name">
+            {% for seccion in secciones %}
+              <option value="{{ seccion.nombre_seccion }}">{{ seccion.nombre_seccion }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Tomar asistencia</button>
+      </form>
     </div>
   </div>
 </body>
 </html>
+

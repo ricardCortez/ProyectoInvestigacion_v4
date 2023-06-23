@@ -2,6 +2,10 @@
 <html>
 <head>
   <title>Busqueda de alumno</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link href="https://fonts.googleapis.com/css?family=Lato:300,400,700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.5/dist/sweetalert2.min.css" rel="stylesheet">
   <link rel="stylesheet" href="/static/css/style_busqueda.css">
 </head>
 <body>
@@ -12,9 +16,8 @@
         <div class="form-group">
           <input type="text" class="form-control" id="codigo_alumno" name="codigo_alumno" placeholder="Ingrese el código del alumno">
 
-          <select id="searchLocation" name="searchLocation">
-            <option value="aula">Aula</option>
-            <option value="laboratorio">Laboratorio</option>
+          <select id="seccion" name="seccion" data-usuario-id="{{ session['usuario_id'] }}">
+            <!-- Las opciones se llenarán dinámicamente con JavaScript -->
           </select>
 
           <button type="submit" class="btn btn-primary">Buscar alumno</button>
@@ -23,7 +26,8 @@
     </div>
   </div>
 
- {% if usuario %}
+  <div id="campo-dinamico">
+    {% if usuario %}
     <img id="myImage" src="static/image/test.jpg" alt="Description of image">
     <h1>Detalles del Usuario</h1>
     <p>Código de Alumno: {{ usuario.codigo_alumno }}</p>
@@ -31,34 +35,37 @@
     <p>Ciclo Actual: {{ usuario.ciclo_academico }}</p>
     <p>Fecha de ingreso: {{ usuario.fecha_ingreso }}</p>
 
-    {% if ubicacion == "aula" %}
-        <h1>Asistencia de Aula</h1>
-        {% if asistencia_aula %}
-            <p>Fecha de registro: {{ asistencia_aula.fecha }}</p>
-            <p>Hora de registro: {{ asistencia_aula.hora }}</p>
-        {% else %}
-            <p>No se encontraron registros de asistencia de aula.</p>
-        {% endif %}
-    {% elif ubicacion == "laboratorio" %}
-        <h1>Asistencia de Laboratorio</h1>
-        {% if asistencia_laboratorio %}
-            <p>Número de Cubículo: {{ asistencia_laboratorio.numero_cubiculo }}</p>
-            <p>Fecha de registro: {{ asistencia_laboratorio.fecha }}</p>
-            <p>Hora de registro: {{ asistencia_laboratorio.hora }}</p>
-        {% else %}
-            <p>No se encontraron registros de asistencia de laboratorio.</p>
-        {% endif %}
+    {% if pertenece_seccion %}
+    <h2>Sección: {{ seccion }}</h2>
+    {% else %}
+    <h2>El alumno no pertenece a la sección seleccionada.</h2>
+    {% endif %}
+
+    <h1>Asistencia de Aula</h1>
+    {% if asistencia %}
+    {% for registro in asistencia %}
+    <p>Fecha de registro: {{ registro.fecha }}</p>
+    <p>Hora de registro: {{ registro.hora }}</p>
+    {% endfor %}
+    {% else %}
+    <p>No se encontraron registros de asistencia de aula.</p>
     {% endif %}
 
     <h1>Datos del Sistema</h1>
     {% for registro in registro_rostro %}
-        <p>Fecha de registro de rostro: {{ registro.fecha_registro }}</p>
+    <p>Fecha de registro de rostro: {{ registro.fecha_registro }}</p>
     {% endfor %}
-{% else %}
-    <p>No se encontraron resultados.</p>
-{% endif %}
 
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-<script src="/static/js/resultado_busqueda.js"></script> <!-- Asegúrate de reemplazar "tu_archivo.js" con la ruta correcta a tu archivo JavaScript -->
+    {% elif no_results %}
+      <p>No se encontró ningún usuario con el código de alumno proporcionado.</p>
+    {% endif %}
+  </div>
+<script>
+  var usuarioId = "{{ session['usuario_id'] }}";
+</script>
+
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.5/dist/sweetalert2.all.min.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="/static/js/resultado_busqueda.js"></script>
 </body>
 </html>

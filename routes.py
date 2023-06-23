@@ -8,10 +8,11 @@ import pandas as pd
 from flask import Blueprint, render_template, flash, request, jsonify, session, redirect, url_for
 from sqlalchemy.orm import joinedload
 
-from database import Usuario, RegistroRostros, db, NuevoRegistro, AsistenciaAula, AsistenciaLaboratorio
+from database import Usuario, RegistroRostros, db, NuevoRegistro, AsistenciaAula, AsistenciaLaboratorio, Secciones, \
+    profesor_seccion, estudiante_seccion
 from functions import add_attendance_aula, add_attendance_laboratorio, train_model, \
     extract_attendance_from_db, get_code_from_db, hash_password, show_alert, get_name_from_db, check_password, \
-    admin_required, personal_required, docente_required
+    admin_required, personal_required, docente_required, get_section_id
 from app import datetoday2
 logging.basicConfig(level=logging.INFO)
 
@@ -48,10 +49,21 @@ def home():
     return render_template('registro-alumno.html')
 # ------------------------- fin de las rutas del administrador --------------------
 
+# ------------------------- rutas del personal administrativo --------------------
 @routes_blueprint.route('/per')
-@personal_required
+#@personal_required
 def panel_personal():
-    return render_template('personal.html')
+    return render_template('asignar_secciones_alumnos.html')
+
+@routes_blueprint.route('/doc')
+#@personal_required
+def documentos():
+    return render_template('asignar_secciones.html')
+
+@routes_blueprint.route('/reporte')
+#@personal_required
+def reporte():
+    return render_template('reporte.html')
 
 # ------------------------- rutas del docente --------------------
 @routes_blueprint.route('/docente')
@@ -75,7 +87,7 @@ def busqueda_alumnos():
 
 #------------------------ INICIO DE FUNCIONES --------------------------------
 @routes_blueprint.route('/start/aula', methods=['GET'])
-def start_aula():
+def start_aula(section_name):
     cap = cv2.VideoCapture(0)
     ret = True
     recognized_users = set()
@@ -91,6 +103,8 @@ def start_aula():
     dataPath = 'static/faces'  # Cambia a la ruta donde hayas almacenado Data
     imagePaths = os.listdir(dataPath)
     print('imagePaths=', imagePaths)
+
+    section_id = get_section_id(section_name)  # Obtener el ID de la sección a partir de su nombre
 
     while ret:
         ret, frame = cap.read()
@@ -131,7 +145,7 @@ def start_aula():
                         logging.info(f"El alumno {identified_person} ya tiene un registro de asistencia para hoy en asistencia aula.")
                     else:
                         # Agregar el registro de asistencia en asistencia aula solo si no existe uno para la fecha actual
-                        add_attendance_aula(codigo_alumno)
+                        add_attendance_aula(codigo_alumno, section_id)
                 else:
                     logging.error(f"No se encontró el código de alumno para el nombre: {identified_person}")
             else:
@@ -164,6 +178,7 @@ def start_aula():
         return render_template('attendance_aula.html', codigo_alumno=codigo_alumno, hora=hora, datetoday2=datetoday2)
     else:  # Si no, renderiza la página completa
         return render_template('panel_docente.html')
+
 
 
 @routes_blueprint.route('/start/laboratorio', methods=['GET', 'POST'])
@@ -334,9 +349,15 @@ def add():
         cap.release()
         cv2.destroyAllWindows()
 
+        # Busca el usuario en la base de datos utilizando el código de alumno
+        usuario = Usuario.query.filter_by(codigo_alumno=codigo_alumno).first()
+        if usuario is None:
+            print(f"No se encontró el usuario con código de alumno {codigo_alumno}")
+            return
+
         # Guardar los datos del registro de rostros en la base de datos
         fecha_registro = datetime.datetime.now()  # Obtener la fecha y hora actual
-        registro_rostro = RegistroRostros(nombre=nombre, codigo_alumno=codigo_alumno, ruta_rostro=ruta_rostro, fecha_registro=fecha_registro)
+        registro_rostro = RegistroRostros(nombre=nombre, codigo_alumno=codigo_alumno, ruta_rostro=ruta_rostro, fecha_registro=fecha_registro, usuario_id=usuario.id)
         db.session.add(registro_rostro)
         db.session.commit()
 
@@ -353,7 +374,6 @@ def add():
         return render_template('registro-alumno.html', images_captured=count, total_images=300, nombre=nombre, codigo_alumno=codigo_alumno, hora=hora)
     else:
         return render_template('add.html')
-
 
 @routes_blueprint.route('/reporte_asistencia')
 def reporte_asistencia():
@@ -462,8 +482,12 @@ def login():
         if usuario.tipo_perfil == rol_seleccionado:
             # Iniciar la sesión del usuario
             session['logged_in'] = True
-            session['usuario'] = usuario.numero_documento
-            session['rol'] = usuario.tipo_perfil  # Asumiendo que 'rol' es un atributo de tu modelo de usuario
+            session['usuario_id'] = usuario.id
+            session['rol'] = usuario.tipo_perfil
+            session['nombre_usuario'] = usuario.nombre  # Agregar esta línea para almacenar el nombre del usuario en la sesión
+
+            # Agrega este print para mostrar el ID de la sesión
+            print("ID de la sesión:", session.get('usuario_id'))
 
             # Imprimir los valores relevantes
             print("DNI:", dni)
@@ -482,11 +506,96 @@ def login():
         response.status_code = 401
         return response
 
+@routes_blueprint.route('/logout')
+def logout():
+    # Eliminar las variables de sesión
+    session.pop('logged_in', None)
+    session.pop('usuario_id', None)
+    session.pop('rol', None)
+    session.pop('nombre_usuario', None)
+
+    # Redirigir al template principal
+    return redirect('/main')
+
+
 @routes_blueprint.route('/set-rol', methods=['POST'])
 def set_rol():
     rol_seleccionado = request.form['rol']
     session['rol_seleccionado'] = rol_seleccionado
     return jsonify({'message': 'Rol seleccionado establecido'}), 200
+
+@routes_blueprint.route('/obtener_docentes', methods=['GET'])
+def obtener_docentes():
+    docentes = NuevoRegistro.query.filter_by(tipo_perfil='Docente').all()
+    docentes_list = [{"id": docente.id, "nombre": docente.nombre} for docente in docentes]
+    return jsonify(docentes_list)
+
+from flask import session
+
+@routes_blueprint.route('/obtener_secciones', methods=['GET'])
+def obtener_secciones():
+    docente_id = session.get('usuario_id')  # Obtén el ID del docente de la sesión
+    print("ID del docente:", docente_id)
+
+    # Realiza la consulta en la base de datos para obtener las secciones del docente actual
+    secciones = db.session.query(Secciones).join(profesor_seccion).filter(profesor_seccion.c.profesor_id == docente_id).all()
+
+    # Crea una lista de diccionarios con los datos de las secciones
+    secciones_list = [{"id": seccion.id, "nombre_seccion": seccion.nombre_seccion} for seccion in secciones]
+
+    print("Secciones obtenidas:", secciones_list)
+
+    return jsonify(secciones_list)
+
+
+
+@routes_blueprint.route('/asignar_docente', methods=['POST'])
+def asignar_docente():
+    profesor_id = request.form.get('profesor_id')
+    seccion_id = request.form.get('seccion_id')
+
+    profesor = NuevoRegistro.query.get(profesor_id)
+    seccion = Secciones.query.get(seccion_id)
+
+    profesor.secciones.append(seccion)
+    db.session.commit()
+
+    return jsonify({"message": "Asignación exitosa"}), 200
+
+@routes_blueprint.route('/obtener_docentes_asignados', methods=['GET'])
+def obtener_docentes_asignados():
+    docentes_asignados = [relacion.profesor_id for relacion in db.session.query(profesor_seccion.c.profesor_id).distinct()]
+    return jsonify(docentes_asignados)
+
+@routes_blueprint.route('/obtener_secciones_no_asignadas', methods=['GET'])
+def obtener_secciones_no_asignadas():
+    secciones_asignadas = [relacion.seccion_id for relacion in db.session.query(profesor_seccion.c.seccion_id).distinct()]
+    secciones_no_asignadas = Secciones.query.filter(~Secciones.id.in_(secciones_asignadas)).all()
+    secciones_list = [{"id": seccion.id, "nombre_seccion": seccion.nombre_seccion} for seccion in secciones_no_asignadas]
+    return jsonify(secciones_list)
+
+@routes_blueprint.route('/asignar_estudiante', methods=['POST'])
+def asignar_estudiante():
+    estudiante_id = request.form.get('estudiante_id')
+    seccion_id = request.form.get('seccion_id')
+
+    asignacion = estudiante_seccion.insert().values(estudiante_id=estudiante_id, seccion_id=seccion_id)
+    db.session.execute(asignacion)
+    db.session.commit()
+
+    return jsonify({"message": "Estudiante asignado correctamente."})
+
+@routes_blueprint.route('/obtener_usuarios', methods=['GET'])
+def obtener_usuarios():
+    usuarios = Usuario.query.all()
+    usuarios_list = [{"id": usuario.id, "nombre": usuario.nombre} for usuario in usuarios]
+    return jsonify(usuarios_list)
+
+@routes_blueprint.route('/obtener_estudiantes_asignados', methods=['GET'])
+def obtener_usuarios_asignados():
+    usuarios_asignados = [relacion.estudiante_id for relacion in db.session.query(estudiante_seccion.c.estudiante_id).distinct()]
+    return jsonify(usuarios_asignados)
+
 
 @routes_blueprint.route('/get_attendance_data', methods=['GET'])
 def get_attendance_data():
@@ -497,23 +606,27 @@ def get_attendance_data():
     return render_template('attendance_table.html', nombre=nombre, codigo_alumno=codigo_alumno, hora=hora)
 
 @routes_blueprint.route('/search_student_aula', methods=['POST'])
-def search_student():
+def search_student_aula():
     codigo_alumno = request.form['codigo_alumno']
-    print(f"Codigo de alumno recibido: {codigo_alumno}")  # Imprime el código de alumno recibido
+    seccion = request.form['seccion']
 
-    # Realizar la búsqueda del usuario en la base de datos
+    # Realiza la búsqueda del usuario y verifica si pertenece a la sección
     usuario = Usuario.query.filter_by(codigo_alumno=codigo_alumno).first()
-    asistencia = AsistenciaAula.query.filter_by(usuario_id=usuario.id).all()
-    registro_rostro = RegistroRostros.query.filter_by(codigo_alumno=codigo_alumno)
+    seccion_obj = Secciones.query.filter_by(nombre_seccion=seccion).first()
 
-    if usuario is not None:
-        print(usuario.__dict__)  # Imprime los detalles del usuario encontrado
-        print(asistencia)  # Imprime los registros de asistencia del aula del usuario
-        # Renderizar los resultados de búsqueda en un, témplate HTML
-        return render_template('resultados_busqueda.html', usuario=usuario,
-                               asistencia=asistencia, registro_rostro=registro_rostro, ubicacion="aula")
+    pertenece_aula = False
+    pertenece_seccion = False
 
-    return render_template('resultados_busqueda.html', no_results=True)
+    if usuario and seccion_obj:
+        pertenece_aula = True
+
+        if seccion_obj in usuario.secciones:
+            pertenece_seccion = True
+            print(f"Código de Alumno: {codigo_alumno}")
+            print(f"Sección: {seccion}")
+
+    return render_template('resultados_busqueda.html', usuario=usuario, pertenece_aula=pertenece_aula, pertenece_seccion=pertenece_seccion, seccion=seccion)
+
 
 @routes_blueprint.route('/search_student_laboratorio', methods=['POST'])
 def search_student_laboratorio():
@@ -534,6 +647,23 @@ def search_student_laboratorio():
 
     return render_template('resultados_busqueda.html', no_results=True)
 
+
+@routes_blueprint.route('/get_students_sections', methods=['GET'])
+def get_students_sections():
+    estudiantes = Usuario.query.all()
+    estudiantes_data = []
+
+    for estudiante in estudiantes:
+        secciones = [seccion.nombre_seccion for seccion in estudiante.secciones]
+        estudiante_data = {
+            'codigo_alumno': estudiante.codigo_alumno,
+            'nombre': estudiante.nombre,
+            'secciones': secciones
+        }
+        estudiantes_data.append(estudiante_data)
+
+    return jsonify(estudiantes_data)
+
 @routes_blueprint.route('/actualizar_cubiculo', methods=['POST'])
 def actualizar_cubiculo():
     codigo_alumno = request.form['codigo_alumno']
@@ -549,4 +679,16 @@ def actualizar_cubiculo():
             return 'Actualización exitosa'
     return 'No se encontró la asistencia de laboratorio correspondiente'
 
+@routes_blueprint.route('/limpiar_asignaciones', methods=['POST'])
+def limpiarAsignaciones():
+    try:
+        # Eliminar todas las relaciones en la tabla profesor_seccion
+        db.session.query(profesor_seccion).delete()
 
+        # Guardar los cambios en la base de datos
+        db.session.commit()
+
+        return jsonify({"message": "Asignaciones limpiadas correctamente"}), 200
+    except Exception as e:
+        db.session.rollback()  # Revertir los cambios en caso de error
+        return jsonify({"message": "Error al limpiar las asignaciones", "error": str(e)}), 500

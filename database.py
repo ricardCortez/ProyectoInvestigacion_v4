@@ -3,6 +3,18 @@ from flask_sqlalchemy import SQLAlchemy
 db = SQLAlchemy()
 
 
+# Asociación entre NuevoRegistro (profesores) y Secciones
+profesor_seccion = db.Table('profesor_seccion',
+    db.Column('profesor_id', db.Integer, db.ForeignKey('nuevo_registro.id'), primary_key=True),
+    db.Column('seccion_id', db.Integer, db.ForeignKey('secciones.id'), primary_key=True)
+)
+
+# Asociación entre Usuarios (estudiantes) y Secciones
+estudiante_seccion = db.Table('estudiante_seccion',
+    db.Column('estudiante_id', db.Integer, db.ForeignKey('usuarios.id')),
+    db.Column('seccion_id', db.Integer, db.ForeignKey('secciones.id'))
+)
+
 class Usuario(db.Model):
     __tablename__ = 'usuarios'
     id = db.Column(db.Integer, primary_key=True)
@@ -28,33 +40,52 @@ class AsistenciaAula(db.Model):
     __tablename__ = 'asistencia_aula'
     id = db.Column(db.Integer, primary_key=True)
     usuario_id = db.Column(db.Integer, db.ForeignKey('usuarios.id'), nullable=False)
+    seccion_id = db.Column(db.Integer, db.ForeignKey('secciones.id'))  # Nueva columna
     fecha = db.Column(db.Date)
     hora = db.Column(db.Time)
 
     usuario_aula = db.relationship('Usuario', backref=db.backref('asistencias_aula_relacion', lazy=True))
+    seccion = db.relationship('Secciones', backref=db.backref('asistencias_aula_seccion', lazy=True))  # Nueva relación
 
-    def __init__(self, usuario_id, fecha, hora):
+    def __init__(self, usuario_id, fecha, hora, seccion_id):  # Nuevo parámetro
         self.usuario_id = usuario_id
         self.fecha = fecha
         self.hora = hora
+        self.seccion_id = seccion_id  # Nueva asignación
+
 
 class AsistenciaLaboratorio(db.Model):
     __tablename__ = 'asistencia_laboratorio'
     id = db.Column(db.Integer, primary_key=True)
     numero_cubiculo = db.Column(db.String(100))
     usuario_id = db.Column(db.Integer, db.ForeignKey('usuarios.id'), nullable=False)
+    seccion_id = db.Column(db.Integer, db.ForeignKey('secciones.id'))  # Nueva columna
     fecha = db.Column(db.Date)
     hora = db.Column(db.Time)
 
     usuario_lab = db.relationship('Usuario', backref=db.backref('asistencias_laboratorio_relacion', lazy=True),
                                   foreign_keys=[usuario_id])
+    seccion = db.relationship('Secciones', backref=db.backref('asistencias_laboratorio_seccion', lazy=True))  # Nueva relación
 
-    def __init__(self, numero_cubiculo, usuario_id, fecha, hora):
+    def __init__(self, numero_cubiculo, usuario_id, fecha, hora, seccion_id):  # Nuevo parámetro
         self.numero_cubiculo = numero_cubiculo
         self.usuario_id = usuario_id
         self.fecha = fecha
         self.hora = hora
+        self.seccion_id = seccion_id  # Nueva asignación
 
+
+class Secciones(db.Model):
+    __tablename__ = 'secciones'
+
+    id = db.Column(db.Integer, primary_key=True)
+    nombre_seccion = db.Column(db.String(100))
+    aula = db.Column(db.String(100))
+    laboratorio = db.Column(db.String(100))
+    profesores = db.relationship('NuevoRegistro', secondary=profesor_seccion, backref=db.backref('secciones', lazy=True))
+    estudiantes = db.relationship('Usuario', secondary=estudiante_seccion, backref=db.backref('secciones', lazy=True))
+    asistencia_aula = db.relationship('AsistenciaAula', backref='asistencias_aula_seccion', lazy=True)
+    asistencia_laboratorio = db.relationship('AsistenciaLaboratorio', backref='asistencia_laboratorio_seccion', lazy=True)
 
 
 class RegistroRostros(db.Model):
@@ -66,11 +97,16 @@ class RegistroRostros(db.Model):
     ruta_rostro = db.Column(db.String(200), nullable=False)
     fecha_registro = db.Column(db.Date)
 
-    def __init__(self, nombre, codigo_alumno, ruta_rostro, fecha_registro):
+    usuario_id = db.Column(db.Integer, db.ForeignKey('usuarios.id'), nullable=False)
+    usuario = db.relationship('Usuario', backref=db.backref('rostro', uselist=False))
+
+    def __init__(self, nombre, codigo_alumno, ruta_rostro, fecha_registro, usuario_id):
         self.nombre = nombre
         self.codigo_alumno = codigo_alumno
         self.ruta_rostro = ruta_rostro
         self.fecha_registro = fecha_registro
+        self.usuario_id = usuario_id
+
 
 class NuevoRegistro(db.Model):
     __tablename__ = 'nuevo_registro'
@@ -86,7 +122,7 @@ class NuevoRegistro(db.Model):
     celular = db.Column(db.String(100))
     sexo = db.Column(db.String(100))
     fecha_nacimiento = db.Column(db.Date)
-    clave_asignada = db.Column(db.String(100))
+    clave_asignada = db.Column(db.String(500))
 
     def __init__(self, tipo_perfil, tipo_documento, numero_documento, nombre, apellido_paterno, apellido_materno, correo_electronico, celular, sexo, fecha_nacimiento, clave_asignada):
         self.tipo_perfil = tipo_perfil
