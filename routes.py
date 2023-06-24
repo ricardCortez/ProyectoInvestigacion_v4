@@ -6,7 +6,6 @@ import imutils
 import cv2
 import pandas as pd
 from flask import Blueprint, render_template, flash, request, jsonify, session, redirect, url_for
-from sqlalchemy.orm import joinedload
 
 from database import Usuario, RegistroRostros, db, NuevoRegistro, AsistenciaAula, AsistenciaLaboratorio, Secciones, \
     profesor_seccion, estudiante_seccion
@@ -31,10 +30,10 @@ def main():
 def login_1():
     return render_template('login.html')
 # ------------------------- rutas del administrador --------------------
-@routes_blueprint.route('/adm')
+@routes_blueprint.route('/administrador')
 @admin_required
 def panel_admin():
-    return render_template('')
+    return render_template('panel_administrador.html')
 
 @routes_blueprint.route('/new')
 def people():
@@ -47,51 +46,62 @@ def upload_form():
 @routes_blueprint.route('/reg')
 def home():
     return render_template('registro-alumno.html')
+@routes_blueprint.route('/ver_reporte')
+def ver_reporte():
+    return render_template('ver_asistencia_general.html')
 # ------------------------- fin de las rutas del administrador --------------------
 
 # ------------------------- rutas del personal administrativo --------------------
+@routes_blueprint.route('/administrativo')
+@personal_required
+def panel_administrativo():
+    return render_template('panel_administrativo.html')
 @routes_blueprint.route('/per')
 #@personal_required
 def panel_personal():
-    return render_template('asignar_secciones_alumnos.html')
+    return render_template('asignar_secciones_alumnos.html')  #### alumnos
 
 @routes_blueprint.route('/doc')
 #@personal_required
 def documentos():
-    return render_template('asignar_secciones.html')
+    return render_template('asignar_secciones.html') ### docentes
 
+@routes_blueprint.route('/reporte_asistencia')
+def reporte_asistencia():
+    return render_template('ver_asistencia.html')
 @routes_blueprint.route('/reporte')
 #@personal_required
 def reporte():
-    return render_template('reporte.html')
+    return render_template('reporte.html') #### estudiantes y secciones
 
 # ------------------------- rutas del docente --------------------
 @routes_blueprint.route('/docente')
 @docente_required
 def panel_docente():
-    return render_template('panel_docente.html')
+    return render_template('panel_docente.html') #### principal
 @routes_blueprint.route('/get_attendance_aula', methods=['GET'])
 def get_attendance_aula():
-    # ... obtén los datos necesarios para renderizar el template ...
     return render_template('attendance_aula.html')
 @routes_blueprint.route('/get_attendance_laboratorio', methods=['GET'])
 def get_attendance_laboratorio():
-    # ... obtén los datos necesarios para renderizar el template ...
     return render_template('attendance_laboratorio.html')
 @routes_blueprint.route('/busqueda_alumnos')
 def busqueda_alumnos():
     return render_template('resultados_busqueda.html')
-
+@routes_blueprint.route('/verasistencia')
+def ver_asistencia():
+    return render_template('ver_asistencia.html')
 # ------------------------- fin de rutas del docente --------------------
 
 
 #------------------------ INICIO DE FUNCIONES --------------------------------
-@routes_blueprint.route('/start/aula', methods=['GET'])
-def start_aula(section_name):
+@routes_blueprint.route('/start/aula', methods=['GET', 'POST'])
+def start_aula():
     cap = cv2.VideoCapture(0)
     ret = True
     recognized_users = set()
     frame = None  # Variable frame inicializada fuera del bucle
+
 
     # Crear el reconocedor de rostros LBPH
     face_recognizer = cv2.face.LBPHFaceRecognizer_create()
@@ -104,7 +114,12 @@ def start_aula(section_name):
     imagePaths = os.listdir(dataPath)
     print('imagePaths=', imagePaths)
 
+    section_name = request.form['section_name']
     section_id = get_section_id(section_name)  # Obtener el ID de la sección a partir de su nombre
+
+    def detenerCargaAutomatica():
+        nonlocal ret
+        ret = False
 
     while ret:
         ret, frame = cap.read()
@@ -161,6 +176,7 @@ def start_aula(section_name):
 
         cv2.imshow('Asistencia', frame)
         if cv2.waitKey(1) & 0xFF == ord('q'):
+            detenerCargaAutomatica()  # Desactivar la carga automática
             break
 
     cap.release()
@@ -175,10 +191,10 @@ def start_aula(section_name):
         logging.info(f"Código: {c}, Hora: {h}")
 
     if request.is_xhr:  # Si la solicitud es AJAX
-        return render_template('attendance_aula.html', codigo_alumno=codigo_alumno, hora=hora, datetoday2=datetoday2)
-    else:  # Si no, renderiza la página completa
-        return render_template('panel_docente.html')
+        return render_template('attendance_aula.html', codigo_alumno=codigo_alumno, hora=hora, datetoday2=datetoday2, url=request.url )
 
+    #return redirect(url_for('routes.panel_docente'))
+    #return render_template('attendance_aula.html', codigo_alumno=codigo_alumno, hora=hora, datetoday2=datetoday2)
 
 
 @routes_blueprint.route('/start/laboratorio', methods=['GET', 'POST'])
@@ -375,10 +391,6 @@ def add():
     else:
         return render_template('add.html')
 
-@routes_blueprint.route('/reporte_asistencia')
-def reporte_asistencia():
-    return render_template('ver_lista.html')
-
 @routes_blueprint.route('/buscar_asistencia', methods=['POST'])
 def buscar_asistencia():
     search_location = request.form['searchLocation']
@@ -567,12 +579,36 @@ def obtener_docentes_asignados():
     docentes_asignados = [relacion.profesor_id for relacion in db.session.query(profesor_seccion.c.profesor_id).distinct()]
     return jsonify(docentes_asignados)
 
+###### valida las secciones para el docente
 @routes_blueprint.route('/obtener_secciones_no_asignadas', methods=['GET'])
 def obtener_secciones_no_asignadas():
     secciones_asignadas = [relacion.seccion_id for relacion in db.session.query(profesor_seccion.c.seccion_id).distinct()]
     secciones_no_asignadas = Secciones.query.filter(~Secciones.id.in_(secciones_asignadas)).all()
     secciones_list = [{"id": seccion.id, "nombre_seccion": seccion.nombre_seccion} for seccion in secciones_no_asignadas]
+    print(secciones_asignadas)
+    # Imprime el nombre de las secciones
+    for seccion in secciones_no_asignadas:
+        print(seccion.nombre_seccion)
+        for seccion in secciones_asignadas:
+            print(seccion.nombre_seccion)
+
     return jsonify(secciones_list)
+
+####### valida las secciones para estudiantes
+@routes_blueprint.route('/obtener_secciones_noasignadas', methods=['GET'])
+def obtener_secciones_noasignadas():
+    secciones_asignadas = [relacion.seccion_id for relacion in
+                           db.session.query(estudiante_seccion.c.seccion_id).distinct()]
+    secciones_no_asignadas = Secciones.query.filter(~Secciones.id.in_(secciones_asignadas)).all()
+    secciones_list = [{"id": seccion.id, "nombre_seccion": seccion.nombre_seccion} for seccion in
+                      secciones_no_asignadas]
+
+    # Imprime el nombre de las secciones
+    for seccion in secciones_no_asignadas:
+        print(seccion.nombre_seccion)
+
+    return jsonify(secciones_list)
+
 
 @routes_blueprint.route('/asignar_estudiante', methods=['POST'])
 def asignar_estudiante():
@@ -589,12 +625,43 @@ def asignar_estudiante():
 def obtener_usuarios():
     usuarios = Usuario.query.all()
     usuarios_list = [{"id": usuario.id, "nombre": usuario.nombre} for usuario in usuarios]
+    #print(usuarios_list)
     return jsonify(usuarios_list)
 
 @routes_blueprint.route('/obtener_estudiantes_asignados', methods=['GET'])
 def obtener_usuarios_asignados():
     usuarios_asignados = [relacion.estudiante_id for relacion in db.session.query(estudiante_seccion.c.estudiante_id).distinct()]
     return jsonify(usuarios_asignados)
+
+@routes_blueprint.route('/get_students_by_section', methods=['GET'])
+def get_students_by_section():
+    seccion_id = request.args.get('seccion', type=int)
+    fecha_str = request.args.get('fecha')  # Obtén la fecha desde los parámetros de la solicitud
+
+    # Convierte la fecha a un objeto datetime.date
+    fecha = datetime.strptime(fecha_str, '%Y-%m-%d').date() if fecha_str else None
+
+    seccion = Secciones.query.get(seccion_id)
+    if seccion is None:
+        return jsonify({'error': 'No se encontró la sección.'}), 404
+
+    estudiantes = []
+    for usuario in seccion.estudiantes:
+        asistencias = [asistencia for asistencia in usuario.asistencias_aula if asistencia.fecha == fecha] if fecha else usuario.asistencias_aula
+
+        if asistencias:
+            estudiantes.append({
+                'codigo_alumno': usuario.codigo_alumno,
+                'nombre': usuario.nombre,
+            })
+
+    return jsonify({'estudiantes': estudiantes})
+
+@routes_blueprint.route('/get_all_sections')
+def get_all_sections():
+    secciones = Secciones.query.all()
+    return jsonify([seccion.to_dict() for seccion in secciones])
+
 
 
 @routes_blueprint.route('/get_attendance_data', methods=['GET'])
@@ -608,11 +675,11 @@ def get_attendance_data():
 @routes_blueprint.route('/search_student_aula', methods=['POST'])
 def search_student_aula():
     codigo_alumno = request.form['codigo_alumno']
-    seccion = request.form['seccion']
+    seccion_id = request.form['seccion']
 
     # Realiza la búsqueda del usuario y verifica si pertenece a la sección
     usuario = Usuario.query.filter_by(codigo_alumno=codigo_alumno).first()
-    seccion_obj = Secciones.query.filter_by(nombre_seccion=seccion).first()
+    seccion_obj = Secciones.query.filter_by(id=seccion_id).first()
 
     pertenece_aula = False
     pertenece_seccion = False
@@ -623,9 +690,9 @@ def search_student_aula():
         if seccion_obj in usuario.secciones:
             pertenece_seccion = True
             print(f"Código de Alumno: {codigo_alumno}")
-            print(f"Sección: {seccion}")
+            print(f"Sección: {seccion_obj.nombre_seccion}")
 
-    return render_template('resultados_busqueda.html', usuario=usuario, pertenece_aula=pertenece_aula, pertenece_seccion=pertenece_seccion, seccion=seccion)
+    return render_template('resultados_busqueda.html', usuario=usuario, pertenece_aula=pertenece_aula, pertenece_seccion=pertenece_seccion, seccion=seccion_obj.nombre_seccion)
 
 
 @routes_blueprint.route('/search_student_laboratorio', methods=['POST'])
@@ -692,3 +759,25 @@ def limpiarAsignaciones():
     except Exception as e:
         db.session.rollback()  # Revertir los cambios en caso de error
         return jsonify({"message": "Error al limpiar las asignaciones", "error": str(e)}), 500
+
+@routes_blueprint.route('/limpiar_asignaciones_estudiantes', methods=['POST'])
+def limpiarAsignacionesEstudiantes():
+    try:
+        # Eliminar todas las relaciones en la tabla profesor_seccion
+        db.session.query(estudiante_seccion).delete()
+
+        # Guardar los cambios en la base de datos
+        db.session.commit()
+
+        return jsonify({"message": "Asignaciones limpiadas correctamente"}), 200
+    except Exception as e:
+        db.session.rollback()  # Revertir los cambios en caso de error
+        return jsonify({"message": "Error al limpiar las asignaciones", "error": str(e)}), 500
+
+@routes_blueprint.route('/obtener_asistencia', methods=['GET'])
+def obtener_asistencia():
+    # Obtener la asistencia del día de hoy
+    today = date.today()
+    asistencia = AsistenciaAula.query.filter_by(fecha=today).all()
+    print(asistencia)  # Esto imprimirá los registros de asistencia en tu consola
+    return jsonify([asist.to_dict() for asist in asistencia])

@@ -1,67 +1,64 @@
-body {
-  background-color: #ffffff;
+/* Reset básico para estandarizar los estilos en diferentes navegadores */
+#campo-dinamico * {
+  padding: 0;
+  box-sizing: border-box;
 }
 
-.registro-section {
-  text-align: center;
+#campo-dinamico body {
+  font-family: 'Lato', sans-serif;
+  background-color: #f4f4f4;
+  color: #333;
 }
 
-.titulo {
-  color: #000000;
-  font-size: 28px;
-}
-
-.container {
-  border: 2px solid #000000;
-  border-radius: 5px;
+#campo-dinamico .container {
+  max-width: 800px;
   margin: 0 auto;
-  max-width: 500px;
-  padding: 20px;
-}
-
-.registro-contenedor {
   display: flex;
-  flex-wrap: wrap;
   justify-content: space-between;
 }
 
-.campo_input {
-  width: 48%;
-  margin-bottom: 15px;
+#campo-dinamico .column {
+  width: 48%; /* Esto permite un pequeño espacio entre las columnas */
 }
 
-.label {
-  display: inline-flex;
-  color: #000000;
-  font-weight: bold;
+#campo-dinamico .titulo {
+  text-align: center;
+  margin-bottom: 30px;
+  font-weight: 700;
+}
+
+#campo-dinamico .campo_input {
+  margin-bottom: 10px;
+}
+
+#campo-dinamico .input-label {
+  display: block;
   margin-bottom: 5px;
+  font-weight: 700;
 }
 
-.input-field {
+#campo-dinamico .input-field {
   width: 100%;
   padding: 10px;
-  border-radius: 3px;
-}
-.input_box {
-  display: inline-flex;
-}
-
-.button-section {
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-  margin-top: 20px; /* Ajustar el margen superior según sea necesario */
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 16px;
 }
 
-.btn {
-  padding: 10px 20px;
-  background-color: #e3b04b;
-  color: #FFFFFF;
+#campo-dinamico .button-section {
+  text-align: center;
+}
+
+#campo-dinamico .btn {
+  padding: 15px 30px;
   border: none;
-  border-radius: 3px;
+  border-radius: 5px;
+  background-color: #007bff;
+  color: #fff;
+  font-size: 18px;
   cursor: pointer;
 }
 
-.btn:hover {
-  background-color: #d89e3b;
+#campo-dinamico .btn:hover {
+  background-color: #0056b3;
 }

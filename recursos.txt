@@ -1,1 +1,49 @@
-asiganacion decubiculo sea automatico en randon de 30 
+$(document).ready(function() {
+  var usuarioId = $("#section_name").data("usuario-id");  // Almacena el ID de sesión en una variable global
+  cargarSecciones(usuarioId);
+  cargarAsistencia();
+});
+
+function cargarSecciones(usuarioId) {
+  console.log("ID del usuario dentro:", usuarioId);
+
+  $.get("/obtener_secciones", function(secciones) {
+    var selectElement = $("#section_name");
+
+    // Vaciar el menú desplegable actual
+    selectElement.empty();
+
+    secciones.forEach(function(seccion) {
+      // Crear una nueva opción y agregarla al menú desplegable
+      var optionElement = $("<option>")
+        .val(seccion.nombre_seccion)
+        .text(seccion.nombre_seccion);
+
+      selectElement.append(optionElement);
+    });
+  });
+}
+
+function cargarAsistencia() {
+  // Hacer una solicitud GET a la API para obtener los datos de asistencia
+  $.get("/obtener_asistencia", function(datosAsistencia) {
+    var tablaAsistencia = $("#tabla_asistencia tbody");
+
+    // Vaciar la tabla actual
+    tablaAsistencia.empty();
+
+    datosAsistencia.forEach(function(asistencia) {
+      // Crear una nueva fila y agregarla a la tabla
+      var fila = $("<tr>")
+        .append($("<td>").text(asistencia.codigo_alumno))
+        .append($("<td>").text(asistencia.nombre_alumno))
+        .append($("<td>").text(asistencia.hora))
+        .append($("<td>").text(asistencia.fecha));
+
+      tablaAsistencia.append(fila);
+    });
+  });
+
+  // Recargar los datos de asistencia cada 5 segundos
+  setTimeout(cargarAsistencia, 5000);
+}

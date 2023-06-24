@@ -1,6 +1,7 @@
 document.addEventListener('DOMContentLoaded', function() {
   var registrarBtn = document.getElementById('registrar-btn');
   registrarBtn.addEventListener('click', function() {
+    console.log("El botón de registrar ha sido pulsado.");
     var tipoPerfil = document.getElementById('tipo-perfil').value;
     var tipoDocumento = document.getElementById('tipo-documento').value;
     var numeroDocumento = document.getElementById('numero-documento').value;
@@ -13,15 +14,44 @@ document.addEventListener('DOMContentLoaded', function() {
     var fechaNacimiento = document.getElementById('fecha-nacimiento').value;
     var claveAsignada = document.getElementById('clave-asignada').value;
 
-    // Validar si se han completado todos los campos del formulario
-    if (tipoPerfil === '' || tipoDocumento === '' || numeroDocumento === '' || nombre === '' ||
-        apellidoPaterno === '' || apellidoMaterno === '' || correoElectronico === '' ||
-        celular === '' || sexo === '' || fechaNacimiento === '' || claveAsignada === '') {
-      Swal.fire({
-        icon: 'error',
-        title: 'Complete los datos',
-        text: 'Por favor complete todos los campos del formulario.',
-      });
+    // Validación de los campos del formulario
+    if (!/^[0-9]{8}$/.test(numeroDocumento)) {
+      Swal.fire('Error', 'Número de documento inválido. Solo se permiten 8 dígitos.', 'error');
+      return;
+    }
+
+    if (!/^[A-Za-z\s]+$/.test(nombre)) {
+      Swal.fire('Error', 'Nombre inválido. Solo se permiten letras.', 'error');
+      return;
+    }
+
+    if (!/^[A-Za-z\s]+$/.test(apellidoPaterno)) {
+      Swal.fire('Error', 'Apellido Paterno inválido. Solo se permiten letras.', 'error');
+      return;
+    }
+
+    if (!/^[A-Za-z\s]+$/.test(apellidoMaterno)) {
+      Swal.fire('Error', 'Apellido Materno inválido. Solo se permiten letras.', 'error');
+      return;
+    }
+
+    if (!/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/.test(correoElectronico)) {
+      Swal.fire('Error', 'Correo Electrónico inválido. Asegúrese de que contiene "@".', 'error');
+      return;
+    }
+
+    if (!/^[0-9]{9}$/.test(celular)) {
+      Swal.fire('Error', 'Número de celular inválido. Solo se permiten 9 dígitos.', 'error');
+      return;
+    }
+
+    if (fechaNacimiento === '') {
+      Swal.fire('Error', 'Seleccione una fecha de nacimiento.', 'error');
+      return;
+    }
+
+    if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/.test(claveAsignada)) {
+      Swal.fire('Error', 'Clave asignada inválida. Debe contener al menos una letra mayúscula, un número, un símbolo especial y ser de 6 caracteres.', 'error');
       return;
     }
 

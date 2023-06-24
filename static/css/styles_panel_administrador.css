@@ -103,7 +103,7 @@ main {
     color: #fff;
     padding: 20px;
     border: 1px solid #fff;
-    text-align: center;
+    text-align: left;
     margin: 20px auto;
     width: 80%; /* Ajusta este valor según tus necesidades */
 }

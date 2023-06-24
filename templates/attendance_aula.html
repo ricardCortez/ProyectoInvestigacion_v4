@@ -2,13 +2,14 @@
 <html>
 <head>
   <title>Asistencia para aula</title>
-  <link rel="stylesheet" href="/static/css/styles_attendance.css">
+  <link rel="stylesheet" href="/static/css/style_attendance_aula.css">
+  <script src="/static/js/attendance_aula.js"></script>
 </head>
 <body>
   <div class="row text-center">
     <div class="col">
       <h2>Asistencia para aula</h2>
-      <form method="post" action="/start_aula">
+      <form method="post" action="/start/aula">
         <div class="form-group">
           <label for="section_name">Seleccione una sección:</label>
           <select class="form-control" id="section_name" name="section_name">
@@ -19,8 +20,28 @@
         </div>
         <button type="submit" class="btn btn-primary">Tomar asistencia</button>
       </form>
+      <div>
+        <button type="button" id="btnCargarAsistencia">Cargar Asistencia</button>
+      </div>
+    </div>
+  </div>
+  <div class="row text-center">
+    <div class="col">
+      <h2>Asistencia</h2>
+      <table id="tabla_asistencia" class="table table-striped">
+        <thead>
+          <tr>
+            <th>Código Alumno</th>
+            <th>Nombre Alumno</th>
+            <th>Hora</th>
+            <th>Fecha</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Las filas se llenarán dinámicamente con JavaScript -->
+        </tbody>
+      </table>
     </div>
   </div>
 </body>
 </html>
-

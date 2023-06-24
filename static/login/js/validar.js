@@ -50,10 +50,10 @@ $(document).ready(function() {
          let redirectUrl;
           switch (data.rol) {
             case 'Administrador':
-              redirectUrl = '/adm';
+              redirectUrl = '/administrador';
               break;
             case 'Personal administrativo':
-              redirectUrl = '/per';  // Sustituir por la ruta correcta para el personal administrativo
+              redirectUrl = '/administrativo';  // Sustituir por la ruta correcta para el personal administrativo
               break;
             case 'Docente':
               redirectUrl = '/docente';  // Sustituir por la ruta correcta para el docente

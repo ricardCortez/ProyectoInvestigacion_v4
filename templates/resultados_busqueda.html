@@ -2,10 +2,10 @@
 <html>
 <head>
   <title>Busqueda de alumno</title>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <link href="https://fonts.googleapis.com/css?family=Lato:300,400,700&display=swap" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.5/dist/sweetalert2.min.css" rel="stylesheet">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link href="https://fonts.googleapis.com/css?family=Lato:300,400,700&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.5/dist/sweetalert2.min.css" rel="stylesheet">
   <link rel="stylesheet" href="/static/css/style_busqueda.css">
 </head>
 <body>
@@ -28,7 +28,7 @@
 
   <div id="campo-dinamico">
     {% if usuario %}
-    <img id="myImage" src="static/image/test.jpg" alt="Description of image">
+
     <h1>Detalles del Usuario</h1>
     <p>Código de Alumno: {{ usuario.codigo_alumno }}</p>
     <p>Nombre: {{ usuario.nombre }}</p>
@@ -56,13 +56,20 @@
     <p>Fecha de registro de rostro: {{ registro.fecha_registro }}</p>
     {% endfor %}
 
-    {% elif no_results %}
-      <p>No se encontró ningún usuario con el código de alumno proporcionado.</p>
+    {% if registro_rostro %}
+    <script src="/static/js/mostrar_imagen.js"></script>
     {% endif %}
+
+    {% elif no_results %}
+    <p>No se encontró ningún usuario con el código de alumno proporcionado.</p>
+    {% endif %}
+    {% if usuario %}
+  {% if registro_rostro %}
+    {% set primera_imagen = registro_rostro[0].ruta_rostro + '/' + usuario.codigo_alumno + '_0.jpg' %}
+    <img id="myImage" src="{{ url_for('static', filename=primera_imagen) }}" alt="Descripción de la imagen">
+    {% endif %}
+  {% endif %}
   </div>
-<script>
-  var usuarioId = "{{ session['usuario_id'] }}";
-</script>
 
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.5/dist/sweetalert2.all.min.js"></script>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>

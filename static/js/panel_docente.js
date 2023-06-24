@@ -75,13 +75,44 @@ $(document).ready(function() {
 
   // Escucha el evento de clic del enlace "5"
   $("#enlace-link_5").click(function(e) {
-    e.preventDefault();  // Previene el comportamiento por defecto del enlace
-    $("#campo-dinamico").empty();  // Vacía el contenido de "campo-dinamico"
-    // Agrega aquí el código para cargar el contenido de "link 5"
+      e.preventDefault();  // Previene el comportamiento por defecto del enlace
+      $("#campo-dinamico").empty();  // Vacía el contenido de "campo-dinamico"
+
+      // Realiza una solicitud AJAX para obtener el contenido del botón "Ver lista asistentes"
+      $.ajax({
+        url: "/verasistencia",  // La ruta de tu servidor que devuelve el HTML de la lista de asistentes
+        type: "GET",
+        success: function(response) {
+          $("#campo-dinamico").html(response);
+        },
+        error: function(error) {
+          console.log('Ha ocurrido un error al cargar el contenido', error);
+        }
+      });
+
   });
 
   // Escucha el evento de clic del enlace "6"
   $("#enlace-link_6").click(function(e) {
+      e.preventDefault();  // Previene el comportamiento por defecto del enlace
+      $("#campo-dinamico").empty();  // Vacía el contenido de "campo-dinamico"
+
+      // Realiza una solicitud AJAX para obtener el contenido del botón "Ver lista asistentes"
+      $.ajax({
+        url: "/reporte",  // La ruta de tu servidor que devuelve el HTML de la lista de asistentes
+        type: "GET",
+        success: function(response) {
+          $("#campo-dinamico").html(response);
+        },
+        error: function(error) {
+          console.log('Ha ocurrido un error al cargar el contenido', error);
+        }
+      });
+
+  });
+
+    // Escucha el evento de clic del enlace "7"
+  $("#enlace-link_7").click(function(e) {
     e.preventDefault();  // Previene el comportamiento por defecto del enlace
     $("#campo-dinamico").empty();  // Vacía el contenido de "campo-dinamico"
     // Agrega aquí el código para cargar el contenido de "link 6"

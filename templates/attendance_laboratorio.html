@@ -3,14 +3,19 @@
 <head>
   <title>Asistencia para laboratorio</title>
   <link rel="stylesheet" href="/static/css/styles_attendance.css">
+  <script src="/static/js/attendance_laboratorio.js"></script>
 </head>
 <body>
   <div class="row text-center">
     <div class="col">
       <h2>Asistencia para laboratorio</h2>
       <form action="/start/laboratorio" method="POST">
+        <label for="section_name" class="input-label">Seleccione una sección:</label>
+        <select class="form-control" id="section_name" name="section_name" data-usuario-id="{{ session['usuario_id'] }}">
+          <!-- Las opciones se llenarán dinámicamente con JavaScript -->
+        </select>
         <label for="numero_cubiculo" class="input-label">Número de Cubículo asignado:</label>
-        <input type="text" class="form-control" name="numero_cubiculo" id="numero_cubiculo" value="{{ numero_cubiculo }}" readonly>
+        <p id="numero_cubiculo">{{ numero_cubiculo }}</p>
         <button type="submit" class="btn btn-primary">Validar Rostro</button>
       </form>
     </div>

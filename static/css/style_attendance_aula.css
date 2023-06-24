@@ -1,16 +1,11 @@
 .row.text-center {
-  text-align: left;
+  margin-top: 30px;
 }
 
 h2 {
   font-size: 24px;
   font-weight: bold;
   margin-bottom: 20px;
-}
-
-#myImage {
-  max-width: 100px;  // Cambia esto al tamaño que quieras
-  height: auto;  // Esto mantendrá la proporción de la imagen
 }
 
 .form-group {
@@ -24,19 +19,7 @@ input[type="text"].form-control {
   border: 1px solid #ccc;
 }
 .input-label {
-  font-size: 20px;
-}
-
-select#searchLocation {
-  padding: 8px 20px;
-  border-radius: 5px;
-  border: 1px solid #ccc;
-  background-color: #f8f8f8;
-  color: #333;
-}
-
-select#searchLocation option {
-  padding: 10px;
+  font-size: 18px;
 }
 
 button.btn.btn-primary {
@@ -70,8 +53,7 @@ button.btn.btn-primary:hover {
   background-color: #34495E;
 }
 
-#campo-dinamico h1 {
-  text-align: left;
+h1 {
   font-size: 20px;
   font-weight: bold;
   margin-top: 30px;
@@ -79,7 +61,6 @@ button.btn.btn-primary:hover {
 }
 
 p {
-  text-align: left;
   margin-bottom: 5px;
 }
 
@@ -98,4 +79,25 @@ p {
 
 .system-data p {
   margin-bottom: 5px;
+}
+
+
+#tabla_asistencia {
+    font-family: Arial, sans-serif;
+    border-collapse: collapse;
+    width: 100%;
+}
+
+#tabla_asistencia td, #tabla_asistencia th {
+    border: 1px solid #ddd;
+    padding: 8px;
+}
+
+
+#tabla_asistencia th {
+    padding-top: 12px;
+    padding-bottom: 12px;
+    text-align: left;
+    background-color: #4caf50;
+    color: white;
 }

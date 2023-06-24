@@ -2,12 +2,12 @@
 <html>
 <head>
   <title>Docente</title>
-  <link rel="stylesheet" href="/static/css/styles_panel_docente.css">
+  <link rel="stylesheet" href="/static/css/styles_panel_administrativo.css">
   <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.5/dist/sweetalert2.min.css" rel="stylesheet">
 </head>
 <body>
   <header>
-    <h1>Panel del docente</h1>
+    <h1>Panel del personal administrativo</h1>
     <div id="usuario-info">
       {% if 'nombre_usuario' in session %}
       <span id="nombre-usuario">Bienvenido, {{ session['nombre_usuario'] }}</span>
@@ -18,12 +18,12 @@
   <nav>
     <ul>
       <li><a href="#" id="enlace-link_1" class="buttonp">Mi Perfil</a></li>
-      <li><a href="#" id="enlace-link_2" class="buttonp">Asistencia en Aula</a></li>
-      <li><a href="#" id="enlace-link_3" class="buttonp">Asistencia en Laboratorio</a></li>
-      <li><a href="#" id="enlace-link_4" class="buttonp">Búsqueda de Alumno</a></li>
-      <li><a href="#" id="enlace-link_5" class="buttonp">Ver lista asistentes</a></li>
-      <li><a href="#" id="enlace-link_6" class="buttonp">Ver alumnos</a></li>
-      <li><a href="#" id="enlace-link_7" class="buttonp">Reporte de Asistencia</a></li>
+      <li><a href="#" id="enlace-link_2" class="buttonp">Asignar seccion alumno</a></li>
+      <li><a href="#" id="enlace-link_3" class="buttonp">Asignar seccion docente</a></li>
+      <li><a href="#" id="enlace-link_4" class="buttonp">Reporte de asistencias</a></li>
+      <li><a href="#" id="enlace-link_5" class="buttonp">Ver lista alumnos</a></li>
+      <li><a href="#" id="enlace-link_6" class="buttonp">adicional 1</a></li>
+      <li><a href="#" id="enlace-link_7" class="buttonp">adicional 2</a></li>
     </ul>
   </nav>
 
@@ -41,6 +41,6 @@
   </main>
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.5/dist/sweetalert2.all.min.js"></script>
-  <script src="/static/js/panel_docente.js"></script>
+  <script src="/static/js/panel_administrativo.js"></script>
 </body>
 </html>

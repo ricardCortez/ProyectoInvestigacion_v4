@@ -1,0 +1,28 @@
+/* Estilos para SweetAlert2 */
+#campo-dinamico .swal2-popup {
+  font-family: 'Lato', sans-serif;
+  border-radius: 8px;
+}
+
+#campo-dinamico .swal2-title {
+  font-weight: 700;
+  font-size: 24px;
+  margin: 0;
+}
+
+#campo-dinamico .swal2-content {
+  font-size: 16px;
+}
+
+#campo-dinamico .swal2-icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+}
+
+#campo-dinamico .swal2-success .swal2-icon svg {
+  fill: #5cb85c;
+}
+
+#campo-dinamico .swal2-error .swal2-icon svg {
+  fill: #d9534f;
+}

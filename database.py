@@ -1,3 +1,5 @@
+import datetime
+
 from flask_sqlalchemy import SQLAlchemy
 
 db = SQLAlchemy()
@@ -47,6 +49,25 @@ class AsistenciaAula(db.Model):
     usuario_aula = db.relationship('Usuario', backref=db.backref('asistencias_aula_relacion', lazy=True))
     seccion = db.relationship('Secciones', backref=db.backref('asistencias_aula_seccion', lazy=True))  # Nueva relación
 
+    def to_dict(self):
+        data = {}
+        for c in self.__table__.columns:
+            value = getattr(self, c.name)
+            # Si el valor es un objeto de tiempo, convertirlo a una cadena
+            if isinstance(value, datetime.time):
+                value = value.strftime('%H:%M:%S')
+            data[c.name] = value
+
+        # Obtener el código de alumno y el nombre del alumno asociados
+        codigo_alumno = self.usuario.codigo_alumno
+        nombre_alumno = self.usuario.nombre
+
+        # Agregar el código de alumno y el nombre del alumno al diccionario de datos
+        data['codigo_alumno'] = codigo_alumno
+        data['nombre_alumno'] = nombre_alumno
+
+        return data
+
     def __init__(self, usuario_id, fecha, hora, seccion_id):  # Nuevo parámetro
         self.usuario_id = usuario_id
         self.fecha = fecha
@@ -87,6 +108,12 @@ class Secciones(db.Model):
     asistencia_aula = db.relationship('AsistenciaAula', backref='asistencias_aula_seccion', lazy=True)
     asistencia_laboratorio = db.relationship('AsistenciaLaboratorio', backref='asistencia_laboratorio_seccion', lazy=True)
 
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'nombre_seccion': self.nombre_seccion,
+            # Agrega aquí otras propiedades según sea necesario
+        }
 
 class RegistroRostros(db.Model):
     __tablename__ = 'registro_rostros'

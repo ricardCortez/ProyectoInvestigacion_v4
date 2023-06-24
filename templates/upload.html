@@ -5,11 +5,19 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <link href="https://fonts.googleapis.com/css?family=Lato:300,400,700&display=swap" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.5/dist/sweetalert2.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="/static/nuevo_registro/css/style.css">
+    <link rel="stylesheet" href="/static/css/style_upload.css">
+
   </head>
 <body>
     <h1>Subir archivo CSV</h1>
+      <div id="uploadFormResponse"></div>  <!-- Nuevo div para mostrar la respuesta del formulario -->
+    {% if message and status %}
+        {% if status == 'success' %}
+            <div class="alert success">{{ message }}</div>
+        {% elif status == 'error' %}
+            <div class="alert error">{{ message }}</div>
+        {% endif %}
+    {% endif %}
     <form id="uploadForm" action="/upload" method="POST" enctype="multipart/form-data">
         <input type="file" name="csvFile" id="csvFile" accept=".csv">
         <input type="submit" id="submitBtn" value="Subir">
@@ -17,6 +25,6 @@
     <div id="message"></div>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.5/dist/sweetalert2.all.min.js"></script>
-    <script src="static/js/script.js"></script>
+    <script src="static/js/subir_archivo.js"></script>
 </body>
 </html>
