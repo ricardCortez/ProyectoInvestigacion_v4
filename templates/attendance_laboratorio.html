@@ -2,7 +2,10 @@
 <html>
 <head>
   <title>Asistencia para laboratorio</title>
-  <link rel="stylesheet" href="/static/css/styles_attendance.css">
+  <link rel="stylesheet" href="/static/css/styles_attendance_labo.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.1.6/dist/sweetalert2.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.1.6/dist/sweetalert2.min.js"></script>
   <script src="/static/js/attendance_laboratorio.js"></script>
 </head>
 <body>
@@ -11,13 +14,37 @@
       <h2>Asistencia para laboratorio</h2>
       <form action="/start/laboratorio" method="POST">
         <label for="section_name" class="input-label">Seleccione una sección:</label>
-        <select class="form-control" id="section_name" name="section_name" data-usuario-id="{{ session['usuario_id'] }}">
-          <!-- Las opciones se llenarán dinámicamente con JavaScript -->
+        <select class="form-control" id="section_name" name="section_name">
+            {% for seccion in secciones %}
+              <option value="{{ seccion.nombre_seccion }}">{{ seccion.nombre_seccion }}</option>
+            {% endfor %}
         </select>
         <label for="numero_cubiculo" class="input-label">Número de Cubículo asignado:</label>
         <p id="numero_cubiculo">{{ numero_cubiculo }}</p>
         <button type="submit" class="btn btn-primary">Validar Rostro</button>
       </form>
+    <div>
+        <button type="button" id="btnCargarAsistencia">Cargar Asistencia</button>
+      </div>
+    </div>
+  </div>
+  <div class="row text-center">
+    <div class="col">
+      <h2>Asistencia</h2>
+      <table id="tabla_asistencia" class="table table-striped">
+        <thead>
+          <tr>
+            <th>Código Alumno</th>
+            <th>Nombre Alumno</th>
+            <th>Hora</th>
+            <th>Fecha</th>
+            <th>Numero de cubiculo</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Las filas se llenarán dinámicamente con JavaScript -->
+        </tbody>
+      </table>
     </div>
   </div>
 </body>

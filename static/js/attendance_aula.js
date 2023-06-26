@@ -34,24 +34,27 @@ function cargarSecciones(usuarioId) {
       selectElement.append(optionElement);
     });
 
-    seccionSeleccionada = selectElement.val(); // Actualizar la sección seleccionada inicialmente
+    seccionSeleccionada = selectElement.val();
   });
 }
 
 function cargarAsistencia() {
-  // Obtener el valor de la sección seleccionada
-  var seccionSeleccionada = $("#section_name").val();
+  // Obtener el valor de la sección seleccionada (nombre de la sección)
+  var seccionSeleccionadaNombre = $("#section_name").val();
+
+  // Obtener el ID de la sección correspondiente al nombre seleccionado
+  var seccionSeleccionadaID = obtenerIDSeccion(seccionSeleccionadaNombre);
 
   // Realizar la solicitud GET para obtener los datos de asistencia
-  $.get("/obtener_asistencia", function(datosAsistencia) {
+  $.get("/obtener_asistencia_labo", { seccion_id: seccionSeleccionadaID }, function(datosAsistencia) {
     var tablaAsistencia = $("#tabla_asistencia tbody");
 
     // Vaciar la tabla actual
     tablaAsistencia.empty();
 
     datosAsistencia.forEach(function(asistencia) {
-      if (!seccionSeleccionada || asistencia.seccion_id.toString() === seccionSeleccionada) {
-        // Crear una nueva fila y agregarla a la tabla correspondiente a la sección seleccionada
+      // Verificar si la sección de la asistencia coincide con la sección seleccionada
+      if (asistencia.seccion_id === seccionSeleccionadaID) {
         var fila = $("<tr>")
           .append($("<td>").text(asistencia.codigo_alumno))
           .append($("<td>").text(asistencia.nombre_alumno))
@@ -62,6 +65,20 @@ function cargarAsistencia() {
       }
     });
   });
+}
+
+function obtenerIDSeccion(nombreSeccion) {
+  var seccionSeleccionadaID = null;
+
+  // Iterar sobre las opciones del menú desplegable para encontrar el ID de la sección correspondiente al nombre seleccionado
+  $("#section_name option").each(function() {
+    if ($(this).text() === nombreSeccion) {
+      seccionSeleccionadaID = $(this).val();
+      return false; // Salir del bucle cuando se encuentra el nombre de la sección correspondiente
+    }
+  });
+
+  return seccionSeleccionadaID;
 }
 
 function limpiarVistaAsistencia() {

@@ -11,7 +11,7 @@ from database import Usuario, RegistroRostros, db, NuevoRegistro, AsistenciaAula
     profesor_seccion, estudiante_seccion
 from functions import add_attendance_aula, add_attendance_laboratorio, train_model, \
     extract_attendance_from_db, get_code_from_db, hash_password, show_alert, get_name_from_db, check_password, \
-    admin_required, personal_required, docente_required, get_section_id
+    admin_required, personal_required, docente_required, get_section_name
 from app import datetoday2
 logging.basicConfig(level=logging.INFO)
 
@@ -102,7 +102,6 @@ def start_aula():
     recognized_users = set()
     frame = None  # Variable frame inicializada fuera del bucle
 
-
     # Crear el reconocedor de rostros LBPH
     face_recognizer = cv2.face.LBPHFaceRecognizer_create()
     face_recognizer.read('static/modelo_LBPHFace.xml')
@@ -114,12 +113,8 @@ def start_aula():
     imagePaths = os.listdir(dataPath)
     print('imagePaths=', imagePaths)
 
-    section_name = request.form['section_name']
-    section_id = get_section_id(section_name)  # Obtener el ID de la sección a partir de su nombre
-
-    def detenerCargaAutomatica():
-        nonlocal ret
-        ret = False
+    section_id = request.form['section_name']
+    section_name = get_section_name(section_id)    # Obtener el ID de la sección a partir de su nombre
 
     while ret:
         ret, frame = cap.read()
@@ -176,7 +171,6 @@ def start_aula():
 
         cv2.imshow('Asistencia', frame)
         if cv2.waitKey(1) & 0xFF == ord('q'):
-            detenerCargaAutomatica()  # Desactivar la carga automática
             break
 
     cap.release()
@@ -193,16 +187,12 @@ def start_aula():
     if request.is_xhr:  # Si la solicitud es AJAX
         return render_template('attendance_aula.html', codigo_alumno=codigo_alumno, hora=hora, datetoday2=datetoday2, url=request.url )
 
-    #return redirect(url_for('routes.panel_docente'))
+    return render_template('panel_docente.html')
     #return render_template('attendance_aula.html', codigo_alumno=codigo_alumno, hora=hora, datetoday2=datetoday2)
 
 
 @routes_blueprint.route('/start/laboratorio', methods=['GET', 'POST'])
 def start_laboratorio():
-    usuario = None
-    asistencia_laboratorio = None
-    registro_rostro = None
-    codigo_alumno_detectado = None
 
     if request.method == 'POST':
         numero_cubiculo = None
@@ -237,6 +227,9 @@ def start_laboratorio():
         imagePaths = os.listdir(dataPath)
         print('imagePaths=', imagePaths)
 
+        section_id = request.form['section_name']
+        section_name = get_section_name(section_id)        # Obtener el ID de la sección a partir de su nombre
+
         while ret:
             ret, frame = cap.read()
 
@@ -256,7 +249,7 @@ def start_laboratorio():
 
                 confidence = 0  # Valor predeterminado de confianza
 
-                if result[1] < 90:
+                if result[1] < 70:
                     identified_person = imagePaths[result[0]]  # Nombre del usuario identificado
                     recognized_users.add(identified_person)
                     confidence = round((1 - (result[1] / 100)) * 100 * 1.5, 2)  # Calcular la confianza como porcentaje
@@ -266,22 +259,17 @@ def start_laboratorio():
 
                     # Agregar asistencia del alumno a la tabla "asistencia"
                     codigo_alumno = get_code_from_db(identified_person)
-                    codigo_alumno_detectado = codigo_alumno
                     nombre = get_name_from_db(identified_person)
                     if codigo_alumno:
                         # Verificar si el alumno ya tiene un registro de asistencia para la fecha actual en asistencia laboratorio
                         today = date.today()
-                        existing_attendance_lab = db.session.query(AsistenciaAula).join(Usuario).filter(
-                            Usuario.codigo_alumno == codigo_alumno, AsistenciaAula.fecha == today).first()
+                        existing_attendance_lab = db.session.query(AsistenciaLaboratorio).join(Usuario).filter(
+                            Usuario.codigo_alumno == codigo_alumno, AsistenciaLaboratorio.fecha == today).first()
                         if existing_attendance_lab:
                             logging.info(f"El alumno {identified_person} ya tiene un registro de asistencia para hoy en asistencia laboratorio.")
                         else:
                             # Agregar el registro de asistencia en asistencia laboratorio solo si no existe uno para la fecha actual
-                            add_attendance_laboratorio(numero_cubiculo, codigo_alumno)
-                            # Obtener datos adicionales del alumno desde otras tablas
-                            usuario = Usuario.query.filter_by(codigo_alumno=codigo_alumno).first()
-                            asistencia_laboratorio = AsistenciaLaboratorio.query.filter_by(codigo_alumno=codigo_alumno).all()
-                            registro_rostro = RegistroRostros.query.filter_by(codigo_alumno=codigo_alumno).all()
+                            add_attendance_laboratorio(numero_cubiculo, codigo_alumno, section_id)
                     else:
                         logging.error(f"No se encontró el código de alumno para el nombre: {identified_person}")
                 else:
@@ -312,15 +300,12 @@ def start_laboratorio():
             logging.info(f"Codigo: {m}, Hora: {c}, Numero de cubiculo: {h}")
 
         if request.is_xhr:  # Si la solicitud es AJAX
-            return render_template('attendance_laboratorio.html', codigo_alumno=codigo_alumno, hora=hora,
-                                   usuario=usuario,
-                                   asistencia_laboratorio=asistencia_laboratorio, registro_rostro=registro_rostro,
-                                   codigo_alumno_detectado=codigo_alumno_detectado, captura_finalizada=True)
-        else:
-            return render_template('attendance_laboratorio.html',numero_cubiculo=numero_cubiculo, codigo_alumno=codigo_alumno, hora=hora,
-                                   usuario=usuario,
-                                   asistencia_laboratorio=asistencia_laboratorio, registro_rostro=registro_rostro,
-                                   codigo_alumno_detectado=codigo_alumno_detectado)
+            return render_template('attendance_laboratorio.html', codigo_alumno=codigo_alumno,
+                                   numero_cubiculo=numero_cubiculo, hora=hora, datetoday2=datetoday2, url=request.url)
+        print("ID de la sección seleccionada:", section_id)
+        print("Nombre de la sección seleccionada:", section_name)
+
+        #return redirect(url_for('routes.panel_docente'))
 
 
 @routes_blueprint.route('/add', methods=['GET', 'POST'])
@@ -391,17 +376,16 @@ def add():
     else:
         return render_template('add.html')
 
-@routes_blueprint.route('/buscar_asistencia', methods=['POST'])
-def buscar_asistencia():
-    search_location = request.form['searchLocation']
-
-    if search_location == 'aula':
-        asistencias = AsistenciaAula.query.options(db.joinedload(AsistenciaAula.usuario)).all()
-    else:
-        asistencias = AsistenciaLaboratorio.query.options(db.joinedload(AsistenciaLaboratorio.usuario_lab)).all()
-
-    return render_template('ver_lista.html', asistencias=asistencias, search_location=search_location)
-
+#@routes_blueprint.route('/buscar_asistencia', methods=['POST'])
+#def buscar_asistencia():
+#    search_location = request.form['searchLocation']
+#
+#    if search_location == 'aula':
+#        asistencias = AsistenciaAula.query.options(db.joinedload(AsistenciaAula.usuario)).all()
+#    else:
+#        asistencias = AsistenciaLaboratorio.query.options(db.joinedload(AsistenciaLaboratorio.usuario_lab)).all()
+#
+#    return render_template('ver_lista.html', asistencias=asistencias, search_location=search_location)
 
 @routes_blueprint.route('/upload', methods=['POST'])
 def upload():
@@ -477,7 +461,6 @@ def registro():
         mensaje = "Error al registrar."
 
     return mensaje
-
 
 @routes_blueprint.route('/login', methods=['POST'])
 def login():
@@ -633,36 +616,6 @@ def obtener_usuarios_asignados():
     usuarios_asignados = [relacion.estudiante_id for relacion in db.session.query(estudiante_seccion.c.estudiante_id).distinct()]
     return jsonify(usuarios_asignados)
 
-@routes_blueprint.route('/get_students_by_section', methods=['GET'])
-def get_students_by_section():
-    seccion_id = request.args.get('seccion', type=int)
-    fecha_str = request.args.get('fecha')  # Obtén la fecha desde los parámetros de la solicitud
-
-    # Convierte la fecha a un objeto datetime.date
-    fecha = datetime.strptime(fecha_str, '%Y-%m-%d').date() if fecha_str else None
-
-    seccion = Secciones.query.get(seccion_id)
-    if seccion is None:
-        return jsonify({'error': 'No se encontró la sección.'}), 404
-
-    estudiantes = []
-    for usuario in seccion.estudiantes:
-        asistencias = [asistencia for asistencia in usuario.asistencias_aula if asistencia.fecha == fecha] if fecha else usuario.asistencias_aula
-
-        if asistencias:
-            estudiantes.append({
-                'codigo_alumno': usuario.codigo_alumno,
-                'nombre': usuario.nombre,
-            })
-
-    return jsonify({'estudiantes': estudiantes})
-
-@routes_blueprint.route('/get_all_sections')
-def get_all_sections():
-    secciones = Secciones.query.all()
-    return jsonify([seccion.to_dict() for seccion in secciones])
-
-
 
 @routes_blueprint.route('/get_attendance_data', methods=['GET'])
 def get_attendance_data():
@@ -731,6 +684,7 @@ def get_students_sections():
 
     return jsonify(estudiantes_data)
 
+
 @routes_blueprint.route('/actualizar_cubiculo', methods=['POST'])
 def actualizar_cubiculo():
     codigo_alumno = request.form['codigo_alumno']
@@ -743,8 +697,12 @@ def actualizar_cubiculo():
         if asistencia_laboratorio is not None:
             asistencia_laboratorio.numero_cubiculo = nuevo_numero_cubiculo
             db.session.commit()
-            return 'Actualización exitosa'
-    return 'No se encontró la asistencia de laboratorio correspondiente'
+            response = {'success': True}
+            return jsonify(response)
+
+    response = {'success': False}
+    return jsonify(response)
+
 
 @routes_blueprint.route('/limpiar_asignaciones', methods=['POST'])
 def limpiarAsignaciones():
@@ -779,5 +737,13 @@ def obtener_asistencia():
     # Obtener la asistencia del día de hoy
     today = date.today()
     asistencia = AsistenciaAula.query.filter_by(fecha=today).all()
+    print(asistencia)  # Esto imprimirá los registros de asistencia en tu consola
+    return jsonify([asist.to_dict() for asist in asistencia])
+
+@routes_blueprint.route('/obtener_asistencia_labo', methods=['GET'])
+def obtener_asistencia_labo():
+    # Obtener la asistencia del día de hoy
+    today = date.today()
+    asistencia = AsistenciaLaboratorio.query.filter_by(fecha=today).all()
     print(asistencia)  # Esto imprimirá los registros de asistencia en tu consola
     return jsonify([asist.to_dict() for asist in asistencia])

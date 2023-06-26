@@ -84,9 +84,14 @@ def extract_attendance_from_db():
         logging.error(f"Error al extraer los registros de asistencia desde la base de datos: {str(e)}")
         return [], [], [], [], [], []
 
-def get_section_id(section_name):
-    section = db.session.query(Secciones).filter(Secciones.nombre_seccion == section_name).first()
-    return section.id if section else None
+def get_section_name(section_id):
+    section = db.session.query(Secciones).get(section_id)
+
+    if section:
+        return section.nombre_seccion
+
+    return None
+
 
 def add_attendance_aula(codigo_alumno, section_id):
     fecha = date.today()
@@ -101,24 +106,17 @@ def add_attendance_aula(codigo_alumno, section_id):
         logging.error(f"No se encontró el usuario con el código: {codigo_alumno}")
 
 
-def add_attendance_laboratorio(numero_cubiculo, codigo_alumno):
-    try:
-        # Encuentra el usuario correspondiente al codigo_alumno
-        usuario = Usuario.query.filter_by(codigo_alumno=codigo_alumno).first()
-        if usuario is None:
+def add_attendance_laboratorio(numero_cubiculo, codigo_alumno, section_id):
+        fecha = date.today()
+        hora = datetime.now().time()
+        usuario = db.session.query(Usuario).filter(Usuario.codigo_alumno == codigo_alumno).first()
+        if usuario:
+            asistencia = AsistenciaLaboratorio(usuario_id=usuario.id, fecha=fecha, hora=hora, seccion_id=section_id, numero_cubiculo=numero_cubiculo)
+            db.session.add(asistencia)
+            db.session.commit()
+            logging.info("Asistencia en laboratorio registrada exitosamente.")
+        else:
             logging.error(f"No se encontró el usuario con el código: {codigo_alumno}")
-            return
-
-        # Crea un nuevo registro de asistencia en laboratorio
-        asistencia = AsistenciaLaboratorio(numero_cubiculo=numero_cubiculo, usuario_id=usuario.id,
-                                           fecha=date.today(), hora=datetime.now().time())
-        db.session.add(asistencia)
-        db.session.commit()
-        logging.info("Asistencia en laboratorio registrada exitosamente.")
-    except Exception as e:
-        db.session.rollback()
-        logging.error(f"Error al registrar la asistencia en laboratorio hacia la base de datos: {str(e)}")
-
 
 def get_name_from_db(nombre):
     # Supongamos que en tu tabla RegistroRostros, el nombre del registro se guarda en la columna 'nombre'
@@ -212,3 +210,5 @@ def show_alert(frame):
     cv2.imshow('Asistencia', frame)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
+
+

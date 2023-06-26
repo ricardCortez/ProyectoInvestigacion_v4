@@ -84,9 +84,27 @@ class AsistenciaLaboratorio(db.Model):
     fecha = db.Column(db.Date)
     hora = db.Column(db.Time)
 
-    usuario_lab = db.relationship('Usuario', backref=db.backref('asistencias_laboratorio_relacion', lazy=True),
-                                  foreign_keys=[usuario_id])
+    usuario_lab = db.relationship('Usuario', backref=db.backref('asistencias_laboratorio_relacion', lazy=True),                              foreign_keys=[usuario_id])
     seccion = db.relationship('Secciones', backref=db.backref('asistencias_laboratorio_seccion', lazy=True))  # Nueva relación
+
+    def to_dict(self):
+        data = {}
+        for c in self.__table__.columns:
+            value = getattr(self, c.name)
+            # Si el valor es un objeto de tiempo, convertirlo a una cadena
+            if isinstance(value, datetime.time):
+                value = value.strftime('%H:%M:%S')
+            data[c.name] = value
+
+        # Obtener el código de alumno y el nombre del alumno asociados
+        codigo_alumno = self.usuario.codigo_alumno
+        nombre_alumno = self.usuario.nombre
+
+        # Agregar el código de alumno y el nombre del alumno al diccionario de datos
+        data['codigo_alumno'] = codigo_alumno
+        data['nombre_alumno'] = nombre_alumno
+
+        return data
 
     def __init__(self, numero_cubiculo, usuario_id, fecha, hora, seccion_id):  # Nuevo parámetro
         self.numero_cubiculo = numero_cubiculo
